@@ -16,7 +16,9 @@ class Snake(object):
         self.width = GRID - 2
         self.vel = GRID
         self.dir = vectors.Vector(self.vel, 0, 0)
-        self.body = [vectors.Vector(self.x, self.y, 0), vectors.Vector(self.x + GRID, self.y, 0), vectors.Vector(self.x + GRID * 2, self.y, 0)]
+        self.body = [vectors.Vector(self.x, self.y, 0),
+                     vectors.Vector(self.x + GRID, self.y, 0),
+                     vectors.Vector(self.x + GRID * 2, self.y, 0)]
         self.left = False
         self.right = True
         self.up = False
@@ -24,9 +26,9 @@ class Snake(object):
         self.directions = [self.left, self.right, self.up, self.down]
 
     def show(self):
-        for i in range(len(self.body)):
+        for i in range(len(self.body) - 1):
             pygame.draw.rect(window, (255, 255, 255), (self.body[i].x + 1, self.body[i].y + 1, self.width, self.width))
-        pygame.draw.rect(window, (160, 160, 255), (self.body[i].x + 1, self.body[i].y + 1, self.width, self.width))
+        pygame.draw.rect(window, (160, 160, 255), (self.body[-1].x + 1, self.body[-1].y + 1, self.width, self.width))
 
     def move(self):
         temp_body = deepcopy(self.body)
@@ -54,19 +56,18 @@ class Snake(object):
     def collide(self):
         x = self.body[-1].x
         y = self.body[-1].y
-        for segment in self.body[0:len(self.body) - 1]:
-            if segment.x + self.width > x + self.width / 2 > segment.x:
-                if segment.y + self.width > y + self.width / 2 > segment.y:
+        for part in self.body[0:len(self.body) - 2]:
+            if part.x + self.width > x + self.width / 2 > part.x:
+                if part.y + self.width > y + self.width / 2 > part.y:
                     return True
-            else:
-                return False
+        return False
 
-    # def direction(self, direct):
-    #     for i in range(len(self.directions)):
-    #         if self.directions[i] is direct:
-    #             self.directions[i] = True
-    #         else:
-    #             self.directions[i] = False
+    def change_direction(self, direct):
+        for i in range(len(self.directions) - 1):
+            if self.directions[i] is direct:
+                self.directions[i] = True
+            else:
+                self.directions[i] = False
 
 
 class Food(object):
@@ -102,8 +103,9 @@ def game_over_state():
                 run = False
     return q
 
+
 def game_state():
-    global running
+    global running, snake
     run = True
 
     snake = Snake()
@@ -118,32 +120,36 @@ def game_state():
                 running = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT and not snake.left:
                 snake.dir = vectors.Vector(snake.vel, 0, 0)
-                # snake.direction(snake.right)
-                snake.left = False
-                snake.right = True
-                snake.up = False
-                snake.down = False
+                snake.change_direction(snake.right)
+                # snake.left = False
+                # snake.right = True
+                # snake.up = False
+                # snake.down = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT and not snake.right:
                 snake.dir = vectors.Vector(-snake.vel, 0, 0)
-                # snake.direction(snake.left)
-                snake.left = True
-                snake.right = False
-                snake.up = False
-                snake.down = False
+                snake.change_direction(snake.left)
+                # snake.left = True
+                # snake.right = False
+                # snake.up = False
+                # snake.down = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN and not snake.up:
                 snake.dir = vectors.Vector(0, snake.vel, 0)
-                # snake.direction(snake.down)
-                snake.left = False
-                snake.right = False
-                snake.up = False
-                snake.down = True
+                snake.change_direction(snake.down)
+                # snake.left = False
+                # snake.right = False
+                # snake.up = False
+                # snake.down = True
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP and not snake.down:
                 snake.dir = vectors.Vector(0, -snake.vel, 0)
-                # snake.direction(snake.up)
-                snake.left = False
-                snake.right = False
-                snake.up = True
-                snake.down = False
+                snake.change_direction(snake.up)
+                # snake.left = False
+                # snake.right = False
+                # snake.up = True
+                # snake.down = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                run = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                snake.grow()
             if event.type == MOVE:
                 snake.move()
 
