@@ -1,3 +1,5 @@
+from engine.room import Room, MainMenu
+from engine.room_item import Button
 import pygame
 from random import randint
 import vectors
@@ -19,11 +21,7 @@ class Snake(object):
         self.body = [vectors.Vector(self.x, self.y, 0),
                      vectors.Vector(self.x + GRID, self.y, 0),
                      vectors.Vector(self.x + GRID * 2, self.y, 0)]
-        self.left = False
-        self.right = True
-        self.up = False
-        self.down = False
-        self.directions = [self.left, self.right, self.up, self.down]
+        self.dirs = {"left": False, "right": True, "up": False, "down": False}
 
     def show(self):
         for i in range(len(self.body) - 1):
@@ -39,6 +37,15 @@ class Snake(object):
         head.x += self.dir.vector[0]
         head.y += self.dir.vector[1]
         self.body.append(head)
+
+        if head.x > WIDTH:
+            head.x = 0
+        elif head.x < 0:
+            head.x = WIDTH
+        elif head.y > HEIGHT:
+            head.y = 0
+        elif head.y < 0:
+            head.y = HEIGHT
 
     def eat(self, food):
         x = self.body[-1].x
@@ -63,24 +70,22 @@ class Snake(object):
         return False
 
     def change_direction(self, direct):
-        for i in range(len(self.directions) - 1):
-            if self.directions[i] is direct:
-                self.directions[i] = True
+        for direction in self.dirs:
+            if direction == direct:
+                self.dirs[direction] = True
             else:
-                self.directions[i] = False
+                self.dirs[direction] = False
 
 
 class Food(object):
-    rand_location = (randint(0, 41) * GRID, randint(0, 31) * GRID)
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.width = GRID - 4
+        self.width = GRID - 5
         self.color = (240, 100, 100)
 
     def show(self):
-        pygame.draw.rect(window, self.color, (self.x + 2, self.y + 2, self.width, self.width))
+        pygame.draw.rect(window, self.color, (self.x + 3, self.y + 3, self.width, self.width))
 
 
 def show_fps():
@@ -88,81 +93,105 @@ def show_fps():
     window.blit(fps_text, (6, HEIGHT - 25))
 
 
+def show_score():
+    score_text = score_font.render("SCORE: " + str(score), True, (255, 255, 255))
+    window.blit(score_text, (WIDTH / 2 - 60, 40))
+
+
 def game_over_state():
     global running
-    run = True
-    q = 0
 
-    while run:
+    quit = 0
+    background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
+    button_font = pygame.font.SysFont("calibri", 40, True)
+    colors = ((0, 0, 0), (255, 255, 255))
+    button1 = Button(WIDTH // 2 - 160, HEIGHT // 2, (16, 16, 220), button_font, "RESTART", colors, True)
+    button2 = Button(WIDTH // 2 + 40, HEIGHT // 2, (16, 16, 220), button_font, "EXIT", colors, True)
+    button1.set_selected()
+    buttons = (button1, button2)
+    game_over = Room(buttons)
+
+    while game_over.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                game_over.exit()
                 running = False
-                q = 1
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                run = False
-    return q
+                quit = 1
+            elif event.type == pygame.KEYDOWN:
+                if game_over.button_pressed() == 0:
+                    game_over.exit()
+                elif game_over.button_pressed() == 1:
+                    game_over.exit()
+                    running = False
+                    quit = 1
+                if event.key == pygame.K_UP:
+                    game_over.update_button("up")
+                elif event.key == pygame.K_DOWN:
+                    game_over.update_button("down")
+                elif event.key == pygame.K_r:
+                    game_over.exit()
+
+        window.blit(background, (WIDTH // 4, HEIGHT // 4))
+        background.fill((0, 0, 255))
+        game_over.show(window, 0, 0)
+        pygame.display.flip()
+        clock.tick(48)
+
+    return quit
 
 
 def game_state():
-    global running, snake
-    run = True
+    global running, score
 
+    score = 0
     snake = Snake()
-    food = Food(*Food.rand_location)
+    food = Food(randint(0, 41) * GRID, randint(0, 31) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 60)
+    pygame.time.set_timer(MOVE, 48)
 
-    while run:
+    game = Room()
+
+    while game.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                game.exit()
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT and not snake.left:
-                snake.dir = vectors.Vector(snake.vel, 0, 0)
-                snake.change_direction(snake.right)
-                # snake.left = False
-                # snake.right = True
-                # snake.up = False
-                # snake.down = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT and not snake.right:
-                snake.dir = vectors.Vector(-snake.vel, 0, 0)
-                snake.change_direction(snake.left)
-                # snake.left = True
-                # snake.right = False
-                # snake.up = False
-                # snake.down = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN and not snake.up:
-                snake.dir = vectors.Vector(0, snake.vel, 0)
-                snake.change_direction(snake.down)
-                # snake.left = False
-                # snake.right = False
-                # snake.up = False
-                # snake.down = True
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP and not snake.down:
-                snake.dir = vectors.Vector(0, -snake.vel, 0)
-                snake.change_direction(snake.up)
-                # snake.left = False
-                # snake.right = False
-                # snake.up = True
-                # snake.down = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                run = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
-                snake.grow()
-            if event.type == MOVE:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT and not snake.dirs["left"]:
+                    snake.dir = vectors.Vector(snake.vel, 0, 0)
+                    snake.change_direction("right")
+                elif event.key == pygame.K_LEFT and not snake.dirs["right"]:
+                    snake.dir = vectors.Vector(-snake.vel, 0, 0)
+                    snake.change_direction("left")
+                elif event.key == pygame.K_DOWN and not snake.dirs["up"]:
+                    snake.dir = vectors.Vector(0, snake.vel, 0)
+                    snake.change_direction("down")
+                elif event.key == pygame.K_UP and not snake.dirs["down"]:
+                    snake.dir = vectors.Vector(0, -snake.vel, 0)
+                    snake.change_direction("up")
+                elif event.key == pygame.K_r:
+                    game.exit()
+                elif event.key == pygame.K_ESCAPE:
+                    game.exit()
+                    if game_over_state() == 1:
+                        running = False
+                elif event.key == pygame.K_b:
+                    snake.grow()
+            elif event.type == MOVE:
                 snake.move()
+                if snake.collide():
+                    game.exit()
+                    if game_over_state() == 1:
+                        running = False
 
         window.fill((16, 16, 16))
         if snake.eat(food):
             snake.grow()
+            score += 1
             food = Food(randint(0, 41) * GRID, randint(0, 31) * GRID)
-        if snake.collide():
-            run = False
-            if game_over_state() == 1:
-                running = False
         snake.show()
         food.show()
+        show_score()
         show_fps()
         pygame.display.flip()
         clock.tick(48)
@@ -174,6 +203,7 @@ pygame.display.set_caption("Snake")
 clock = pygame.time.Clock()
 
 fps_font = pygame.font.SysFont("calibri", 16, True)
+score_font = pygame.font.SysFont("calibri", 30, True)
 
 current_state = game_state
 
