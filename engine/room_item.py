@@ -19,23 +19,10 @@ class Button(object):
         text = self.font.render(self.actual_text, self.antial, self.colors[0 if not self.highlight else 1])
         surface.blit(text, (self.x + 5, self.y + 2))
 
-    # def pressed(self):
-    #     mouse_pos = mouse.get_pos()
-    #     if self.x + self.width > mouse_pos[0] > self.x:
-    #         if self.y + self.height > mouse_pos[1] > self.y:
-    #             self.highlight = True
-    #             if mouse.get_pressed()[0]:
-    #                 return True
-    #         else:
-    #             self.highlight = False
-    #     else:
-    #         self.highlight = False
-    #         return False
-
-    def pressed(self):
+    def pressed(self, button=None) -> bool:
         if self.selected:
             self.highlight = True
-            if key.get_pressed()[constants.K_RETURN]:
+            if key.get_pressed()[constants.K_RETURN] or button:
                 return True
             else:
                 return False

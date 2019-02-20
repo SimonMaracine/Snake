@@ -2,7 +2,7 @@ from engine.room import Room, MainMenu
 from engine.room_item import Button
 import pygame
 from random import randint
-import vectors
+from vectors import Vector
 from copy import deepcopy
 
 GRID = 20  # todo make fullscreen option
@@ -17,10 +17,10 @@ class Snake(object):
         self.y = y
         self.width = GRID - 2
         self.vel = GRID
-        self.dir = vectors.Vector(self.vel, 0, 0)
-        self.body = [vectors.Vector(self.x, self.y, 0),
-                     vectors.Vector(self.x + GRID, self.y, 0),
-                     vectors.Vector(self.x + GRID * 2, self.y, 0)]
+        self.dir = Vector(self.vel, 0, 0)
+        self.body = [Vector(self.x, self.y, 0),
+                     Vector(self.x + GRID, self.y, 0),
+                     Vector(self.x + GRID * 2, self.y, 0)]
         self.dirs = {"left": False, "right": True, "up": False, "down": False}
 
     def show(self):
@@ -47,7 +47,7 @@ class Snake(object):
         elif head.y < 0:
             head.y = HEIGHT
 
-    def eat(self, food):
+    def eat(self, food) -> bool:
         x = self.body[-1].x
         y = self.body[-1].y
         if food.x + food.width > x + self.width / 2 > food.x:
@@ -60,7 +60,7 @@ class Snake(object):
         head = self.body[-1]
         self.body.append(head)
 
-    def collide(self):
+    def collide(self) -> bool:
         x = self.body[-1].x
         y = self.body[-1].y
         for part in self.body[0:len(self.body) - 2]:
@@ -95,10 +95,10 @@ def show_fps():
 
 def show_score():
     score_text = score_font.render("SCORE: " + str(score), True, (255, 255, 255))
-    window.blit(score_text, (WIDTH / 2 - 60, 40))
+    window.blit(score_text, (WIDTH / 2 - 64, 40))
 
 
-def game_over_state():
+def game_over_state() -> int:
     global running
 
     quit = 0
@@ -118,18 +118,27 @@ def game_over_state():
                 running = False
                 quit = 1
             elif event.type == pygame.KEYDOWN:
-                if game_over.button_pressed() == 0:
-                    game_over.exit()
-                elif game_over.button_pressed() == 1:
-                    game_over.exit()
-                    running = False
-                    quit = 1
                 if event.key == pygame.K_UP:
                     game_over.update_button("up")
                 elif event.key == pygame.K_DOWN:
                     game_over.update_button("down")
                 elif event.key == pygame.K_r:
                     game_over.exit()
+                if game_over.button_pressed() == 0:
+                    game_over.exit()
+                elif game_over.button_pressed() == 1:
+                    game_over.exit()
+                    running = False
+                    quit = 1
+
+        if not no_joystick:
+            if joystick.get_button(1):
+                if game_over.button_pressed(True) == 0:
+                    game_over.exit()
+                elif game_over.button_pressed(True) == 1:
+                    game_over.exit()
+                    running = False
+                    quit = 1
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
         background.fill((0, 0, 255))
@@ -158,16 +167,16 @@ def game_state():
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT and not snake.dirs["left"]:
-                    snake.dir = vectors.Vector(snake.vel, 0, 0)
+                    snake.dir = Vector(snake.vel, 0, 0)
                     snake.change_direction("right")
                 elif event.key == pygame.K_LEFT and not snake.dirs["right"]:
-                    snake.dir = vectors.Vector(-snake.vel, 0, 0)
+                    snake.dir = Vector(-snake.vel, 0, 0)
                     snake.change_direction("left")
                 elif event.key == pygame.K_DOWN and not snake.dirs["up"]:
-                    snake.dir = vectors.Vector(0, snake.vel, 0)
+                    snake.dir = Vector(0, snake.vel, 0)
                     snake.change_direction("down")
                 elif event.key == pygame.K_UP and not snake.dirs["down"]:
-                    snake.dir = vectors.Vector(0, -snake.vel, 0)
+                    snake.dir = Vector(0, -snake.vel, 0)
                     snake.change_direction("up")
                 elif event.key == pygame.K_r:
                     game.exit()
@@ -183,6 +192,20 @@ def game_state():
                     game.exit()
                     if game_over_state() == 1:
                         running = False
+
+        if not no_joystick:
+            if joystick.get_hat(0) == (-1, 0) and not snake.dirs["right"]:
+                snake.dir = Vector(-snake.vel, 0, 0)
+                snake.change_direction("left")
+            elif joystick.get_hat(0) == (1, 0) and not snake.dirs["left"]:
+                snake.dir = Vector(snake.vel, 0, 0)
+                snake.change_direction("right")
+            elif joystick.get_hat(0) == (0, 1) and not snake.dirs["down"]:
+                snake.dir = Vector(0, -snake.vel, 0)
+                snake.change_direction("up")
+            elif joystick.get_hat(0) == (0, -1) and not snake.dirs["up"]:
+                snake.dir = Vector(0, snake.vel, 0)
+                snake.change_direction("down")
 
         window.fill((16, 16, 16))
         if snake.eat(food):
@@ -204,6 +227,14 @@ clock = pygame.time.Clock()
 
 fps_font = pygame.font.SysFont("calibri", 16, True)
 score_font = pygame.font.SysFont("calibri", 30, True)
+
+if pygame.joystick.get_count() > 0:
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
+    no_joystick = False
+else:
+    joystick = None
+    no_joystick = True
 
 current_state = game_state
 
