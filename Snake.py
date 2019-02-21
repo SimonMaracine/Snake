@@ -2,8 +2,8 @@ from states import game_state
 import pygame
 
 GRID = 20  # todo make fullscreen option
-WIDTH = 32 * GRID
-HEIGHT = 24 * GRID
+WIDTH = 40 * GRID
+HEIGHT = 30 * GRID
 running = True
 no_joystick = True
 
