@@ -1,4 +1,4 @@
-from engine.room import Room, MainMenu
+from engine.room import Room
 from engine.room_item import Button
 import pygame
 from random import randint
@@ -6,8 +6,8 @@ from vectors import Vector
 from copy import deepcopy
 
 GRID = 20  # todo make fullscreen option
-WIDTH = 42 * GRID
-HEIGHT = 32 * GRID
+WIDTH = 40 * GRID
+HEIGHT = 30 * GRID
 running = True
 
 
@@ -234,10 +234,9 @@ def game_over_state() -> int:
 def game_state():
     global running, score
 
-    once = False
     score = 0
     snake = Snake()
-    food = Food(randint(0, 41) * GRID, randint(0, 31) * GRID)
+    food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
     pygame.time.set_timer(MOVE, 48)
 
@@ -264,8 +263,6 @@ def game_state():
                 elif event.key == pygame.K_ESCAPE:
                     if pause_state() == 1:
                         game.exit()
-                elif event.key == pygame.K_r:
-                    game.exit()
                 elif event.key == pygame.K_b:
                     snake.grow()
             elif event.type == MOVE:
@@ -279,13 +276,8 @@ def game_state():
             if joy.get_button(9):
                 if pause_state() == 1:
                     game.exit()
-            elif joy.get_button(8) and once:
-                game.exit()
-                once = False
             elif joy.get_button(3):
                 snake.grow()
-            if not joy.get_button(8):
-                once = True
             if joy.get_hat(0) == (-1, 0) and not snake.dirs["right"]:
                 snake.dir = Vector(-snake.vel, 0, 0)
                 snake.change_direction("left")
@@ -303,7 +295,7 @@ def game_state():
         if snake.eat(food):
             snake.grow()
             score += 1
-            food = Food(randint(0, 41) * GRID, randint(0, 31) * GRID)
+            food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
         snake.show()
         food.show()
         show_score()
