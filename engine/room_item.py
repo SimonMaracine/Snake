@@ -32,6 +32,11 @@ class Button(object):
 
     def set_selected(self):
         self.selected = not self.selected
+        return self
+
+    def set_offset_pos(self):
+        self.x -= self.width / 2
+        return self
 
 
 # class VolumeSlider(object):

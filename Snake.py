@@ -1,15 +1,16 @@
-from engine.room import Room
+from engine.room import Room, MainMenu
 from engine.room_item import Button
 import pygame
 from random import randint
+from os import environ
 from vectors import Vector
 from copy import deepcopy
 
-GRID = 20  # todo make fullscreen option
+GRID = 20
 WIDTH = 40 * GRID
 HEIGHT = 30 * GRID
 running = True
-
+fullscreen = False
 
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):
@@ -93,9 +94,9 @@ def show_fps():
     window.blit(fps_text, (6, HEIGHT - 25))
 
 
-def show_score():
+def show_score(score):
     score_text = score_font.render("SCORE: " + str(score), True, (255, 255, 255))
-    window.blit(score_text, (WIDTH / 2 - 64, 40))
+    window.blit(score_text, (WIDTH // 2 - 64, 40))
 
 
 def init_joystick() -> pygame.joystick.Joystick:
@@ -113,19 +114,30 @@ def init_joystick() -> pygame.joystick.Joystick:
     return joystick
 
 
-def pause_state() -> int:
-    global running
+def toggle_fullscreen():
+    global fullscreen
 
-    once = True
+    if not fullscreen:
+        fullscreen = True
+        return pygame.display.set_mode((WIDTH, HEIGHT))
+    else:
+        fullscreen = False
+        return pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+
+
+def pause_state() -> int:
+    global running, current_state
+
+    flag = True
     quit = 0
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
-    button_font = pygame.font.SysFont("calibri", 40, True)
+    button_font = pygame.font.SysFont("calibri", 50, True)
     colors = ((0, 0, 0), (255, 255, 255))
-    button1 = Button(WIDTH // 2 - 60, HEIGHT // 2 - 100, (16, 16, 220), button_font, "RESUME", colors, True)
-    button2 = Button(WIDTH // 2 - 70, HEIGHT // 2 - 50, (16, 16, 220), button_font, "RESTART", colors, True)
-    button3 = Button(WIDTH // 2 - 45, HEIGHT // 2, (16, 16, 220), button_font, "EXIT", colors, True)
-    button1.set_selected()
-    buttons = (button1, button2, button3)
+    button1 = Button(WIDTH // 2, HEIGHT // 2 - 110, (16, 16, 255), button_font, "RESUME", colors, True).set_offset_pos().set_selected()
+    button2 = Button(WIDTH // 2, HEIGHT // 2 - 50, (16, 16, 255), button_font, "RESTART", colors, True).set_offset_pos()
+    button3 = Button(WIDTH // 2, HEIGHT // 2 + 10, (16, 16, 255), button_font, "EXIT", colors, True).set_offset_pos()
+    button4 = Button(WIDTH // 2, HEIGHT // 2 + 70, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
+    buttons = (button1, button2, button3, button4)
     pause = Room(buttons)
 
     while pause.run:
@@ -146,10 +158,22 @@ def pause_state() -> int:
                     quit = 1
                 elif pause.button_pressed() == 2:
                     pause.exit()
+                    quit = 1
+                    current_state = menu_state
+                elif pause.button_pressed() == 3:
+                    pause.exit()
                     running = False
                     quit = 1
 
         if not no_joystick:
+            if joy.get_hat(0) == (0, 1) and flag:
+                pause.update_button("up")
+                flag = False
+            elif joy.get_hat(0) == (0, -1) and flag:
+                pause.update_button("down")
+                flag = False
+            if joy.get_hat(0) == (0, 0):
+                flag = True
             if joy.get_button(1):
                 if pause.button_pressed(True) == 0:
                     pause.exit()
@@ -158,16 +182,12 @@ def pause_state() -> int:
                     quit = 1
                 elif pause.button_pressed(True) == 2:
                     pause.exit()
+                    quit = 1
+                    current_state = menu_state
+                elif pause.button_pressed(True) == 3:
+                    pause.exit()
                     running = False
                     quit = 1
-            if joy.get_hat(0) == (0, 1) and once:
-                pause.update_button("up")
-                once = False
-            elif joy.get_hat(0) == (0, -1) and once:
-                pause.update_button("down")
-                once = False
-            if joy.get_hat(0) == (0, 0):
-                once = True
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
         background.fill((0, 0, 255))
@@ -179,16 +199,17 @@ def pause_state() -> int:
 
 
 def game_over_state() -> int:
-    global running
+    global running, current_state
 
+    flag = True
     quit = 0
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
-    button_font = pygame.font.SysFont("calibri", 40, True)
+    button_font = pygame.font.SysFont("calibri", 50, True)
     colors = ((0, 0, 0), (255, 255, 255))
-    button1 = Button(WIDTH // 2 - 70, HEIGHT // 2 - 80, (16, 16, 220), button_font, "RESTART", colors, True)
-    button2 = Button(WIDTH // 2 - 45, HEIGHT // 2 - 30, (16, 16, 220), button_font, "EXIT", colors, True)
-    button1.set_selected()
-    buttons = (button1, button2)
+    button1 = Button(WIDTH // 2, HEIGHT // 2 - 85, (16, 16, 255), button_font, "RESTART", colors, True).set_offset_pos().set_selected()
+    button2 = Button(WIDTH // 2, HEIGHT // 2 - 25, (16, 16, 255), button_font, "EXIT", colors, True).set_offset_pos()
+    button3 = Button(WIDTH // 2, HEIGHT // 2 + 35, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
+    buttons = (button1, button2, button3)
     game_over = Room(buttons)
 
     while game_over.run:
@@ -206,24 +227,34 @@ def game_over_state() -> int:
                     game_over.exit()
                 elif game_over.button_pressed() == 1:
                     game_over.exit()
+                    current_state = menu_state
+                elif game_over.button_pressed() == 2:
+                    game_over.exit()
                     running = False
                     quit = 1
 
         if not no_joystick:
+            if joy.get_hat(0) == (0, 1) and flag:
+                game_over.update_button("up")
+                flag = False
+            elif joy.get_hat(0) == (0, -1) and flag:
+                game_over.update_button("down")
+                flag = False
+            elif joy.get_hat(0) == (0, 0):
+                flag = True
             if joy.get_button(1):
                 if game_over.button_pressed(True) == 0:
                     game_over.exit()
                 elif game_over.button_pressed(True) == 1:
                     game_over.exit()
+                    current_state = menu_state
+                elif game_over.button_pressed(True) == 2:
+                    game_over.exit()
                     running = False
                     quit = 1
-            if joy.get_hat(0) == (0, 1):
-                game_over.update_button("up")
-            elif joy.get_hat(0) == (0, -1):
-                game_over.update_button("down")
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
-        background.fill((0, 0, 255))
+        background.fill((16, 16, 216))
         game_over.show(window, 0, 0)
         pygame.display.flip()
         clock.tick(48)
@@ -231,8 +262,145 @@ def game_over_state() -> int:
     return quit
 
 
+def options_state():
+    global running, current_state, window
+
+    flag = True
+    flag2 = False
+    button_font = pygame.font.SysFont("calibri", 55, True)
+    title_font = pygame.font.SysFont("calibri", 60, True)
+    title_text = title_font.render("Options", True, (255, 255, 255))
+    colors = ((0, 0, 0), (255, 255, 255))
+    button1 = Button(WIDTH // 2, HEIGHT // 2 - 40, (16, 16, 255), button_font, "CLEAR DATA", colors, True).set_offset_pos().set_selected()
+    button2 = Button(WIDTH // 2, HEIGHT // 2 + 30, (16, 16, 255), button_font, "VOLUME", colors, True).set_offset_pos()
+    button3 = Button(WIDTH // 2, HEIGHT // 2 + 100, (16, 16, 255), button_font, "TOGGLE FULLSCREEN", colors, True).set_offset_pos()
+    button4 = Button(WIDTH // 2, HEIGHT // 2 + 170, (16, 16, 255), button_font, "BACK", colors, True).set_offset_pos()
+    buttons = (button1, button2, button3, button4)
+    options = MainMenu(title_text, buttons, None, (16, 16, 216))
+
+    while options.run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                options.exit()
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    options.update_button("up")
+                elif event.key == pygame.K_DOWN:
+                    options.update_button("down")
+                if options.button_pressed() == 0:
+                    pass
+                elif options.button_pressed() == 1:
+                    pass
+                elif options.button_pressed() == 2:
+                    window = toggle_fullscreen()
+                elif options.button_pressed() == 3:
+                    options.exit()
+                    current_state = menu_state
+
+        if not no_joystick:
+            if joy.get_hat(0) == (0, 1) and flag:
+                options.update_button("up")
+                flag = False
+            elif joy.get_hat(0) == (0, -1) and flag:
+                options.update_button("down")
+                flag = False
+            elif joy.get_hat(0) == (0, 0):
+                flag = True
+            if joy.get_button(1) and flag2:
+                flag2 = False
+                if options.button_pressed(True) == 0:
+                    pass
+                elif options.button_pressed(True) == 1:
+                    pass
+                elif options.button_pressed(True) == 2:
+                    window = toggle_fullscreen()
+                elif options.button_pressed(True) == 3:
+                    options.exit()
+                    current_state = menu_state
+            elif not joy.get_button(1):
+                flag2 = True
+
+        options.show(window, WIDTH // 2 - 100, 100)
+        pygame.display.flip()
+        clock.tick(48)
+
+
+def menu_state():
+    global running, current_state
+
+    flag = True
+    flag2 = False
+    button_font = pygame.font.SysFont("calibri", 55, True)
+    title_font = pygame.font.SysFont("calibri", 70, True)
+    title_text = title_font.render("Snakesss...", True, (255, 255, 255))
+    colors = ((0, 0, 0), (255, 255, 255))
+    button1 = Button(WIDTH // 2, HEIGHT // 2 - 100, (16, 16, 255), button_font, "PLAY", colors, True).set_offset_pos().set_selected()
+    button2 = Button(WIDTH // 2, HEIGHT // 2 - 30, (16, 16, 255), button_font, "OPTIONS", colors, True).set_offset_pos()
+    button3 = Button(WIDTH // 2, HEIGHT // 2 + 40, (16, 16, 255), button_font, "INSTRUCTIONS", colors, True).set_offset_pos()
+    button4 = Button(WIDTH // 2, HEIGHT // 2 + 110, (16, 16, 255), button_font, "HIGH SCORES", colors, True).set_offset_pos()
+    button5 = Button(WIDTH // 2, HEIGHT // 2 + 180, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
+    buttons = (button1, button2, button3, button4, button5)
+    menu = MainMenu(title_text, buttons, None, (16, 16, 216))
+
+    while menu.run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menu.exit()
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    menu.update_button("up")
+                elif event.key == pygame.K_DOWN:
+                    menu.update_button("down")
+                if menu.button_pressed() == 0:
+                    menu.exit()
+                    current_state = game_state
+                elif menu.button_pressed() == 1:
+                    menu.exit()
+                    current_state = options_state
+                elif menu.button_pressed() == 2:
+                    pass
+                elif menu.button_pressed() == 3:
+                    pass
+                elif menu.button_pressed() == 4:
+                    menu.exit()
+                    running = False
+
+        if not no_joystick:
+            if joy.get_hat(0) == (0, 1) and flag:
+                menu.update_button("up")
+                flag = False
+            elif joy.get_hat(0) == (0, -1) and flag:
+                menu.update_button("down")
+                flag = False
+            if joy.get_hat(0) == (0, 0):
+                flag = True
+            if joy.get_button(1) and flag2:
+                flag2 = False
+                if menu.button_pressed(True) == 0:
+                    menu.exit()
+                    current_state = game_state
+                elif menu.button_pressed(True) == 1:
+                    menu.exit()
+                    current_state = options_state
+                elif menu.button_pressed(True) == 2:
+                    pass
+                elif menu.button_pressed(True) == 3:
+                    pass
+                elif menu.button_pressed(True) == 4:
+                    menu.exit()
+                    running = False
+            elif not joy.get_button(1):
+                flag2 = True
+
+        menu.show(window, 60, 40)
+        pygame.display.flip()
+        clock.tick(48)
+
+
 def game_state():
-    global running, score
+    global running
 
     score = 0
     snake = Snake()
@@ -298,14 +466,15 @@ def game_state():
             food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
         snake.show()
         food.show()
-        show_score()
+        show_score(score)
         show_fps()
         pygame.display.flip()
         clock.tick(48)
 
 
+environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
-window = pygame.display.set_mode((WIDTH, HEIGHT))
+window = toggle_fullscreen()
 pygame.display.set_caption("Snake")
 pygame.display.set_icon(pygame.image.load("gfx\\snake.png").convert_alpha())
 clock = pygame.time.Clock()
@@ -315,7 +484,7 @@ score_font = pygame.font.SysFont("calibri", 30, True)
 
 joy = init_joystick()
 
-current_state = game_state
+current_state = menu_state
 
 while running:
     current_state()
