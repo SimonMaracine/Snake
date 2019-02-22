@@ -1,11 +1,17 @@
-from states import game_state
+import states
 import pygame
+
 
 GRID = 20  # todo make fullscreen option
 WIDTH = 40 * GRID
 HEIGHT = 30 * GRID
 running = True
 no_joystick = True
+
+
+def show_score(score):
+    score_text = score_font.render("SCORE: " + str(score), True, (255, 255, 255))
+    window.blit(score_text, (WIDTH / 2 - 64, 40))
 
 
 def show_fps():
@@ -37,7 +43,7 @@ score_font = pygame.font.SysFont("calibri", 30, True)
 
 joy = init_joystick()
 
-current_state = game_state
+current_state = states.game_state
 
 while running:
     current_state()
