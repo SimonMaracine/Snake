@@ -307,6 +307,7 @@ def game_state():
 pygame.init()
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake")
+pygame.display.set_icon(pygame.image.load("gfx\\snake.png").convert_alpha())
 clock = pygame.time.Clock()
 
 fps_font = pygame.font.SysFont("calibri", 16, True)
