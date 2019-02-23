@@ -23,7 +23,7 @@ class Room(object):
                 self.button_list[current_button].set_selected()
                 self.button_list[current_button + 1].set_selected()
 
-    def button_pressed(self, button=None) -> int:
+    def button_pressed(self, button=False) -> int:
         for i in range(len(self.button_list)):
             if self.button_list[i].pressed(button):
                 if self.sound is not None:

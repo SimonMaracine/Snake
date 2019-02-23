@@ -1,8 +1,11 @@
 from engine.room import Room, MainMenu
 from engine.room_item import Button
 import pygame
+import os
+import datetime
+import pickle
+import configparser
 from random import randint
-from os import environ
 from vectors import Vector
 from copy import deepcopy
 
@@ -10,7 +13,6 @@ GRID = 20
 WIDTH = 40 * GRID
 HEIGHT = 30 * GRID
 running = True
-fullscreen = False
 
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):
@@ -94,9 +96,37 @@ def show_fps():
     window.blit(fps_text, (6, HEIGHT - 25))
 
 
-def show_score(score):
-    score_text = score_font.render("SCORE: " + str(score), True, (255, 255, 255))
-    window.blit(score_text, (WIDTH // 2 - 64, 40))
+def save_best_score(score):
+    with open(os.path.join("data", "data.dat"), "rb") as data_file:
+        prev_best_score = int(pickle.load(data_file)[0])
+        if score > prev_best_score:
+            data_to_write = [score, datetime.datetime.now()]
+            with open(os.path.join("data", "data.dat"), "wb") as data_file2:
+                pickle.dump(data_to_write, data_file2)
+
+
+def load_best_score() -> tuple:
+    with open(os.path.join("data", "data.dat"), "rb") as data_file:
+        dt = pickle.load(data_file)
+        try:
+            date_time = "{:04d}/{:02d}/{:02d}-{:02d}:{:02d}".format(dt[1].year, dt[1].month, dt[1].day, dt[1].hour, dt[1].minute)
+        except AttributeError:
+            date_time = dt[1]
+        return int(dt[0]), date_time
+
+
+def clear_data():
+    with open(os.path.join("data", "data.dat"), "wb") as data_file:
+        data_to_write = [0, "n/a"]
+        pickle.dump(data_to_write, data_file)
+
+
+def check_data_file():
+    try:
+        open(os.path.join("data", "data.dat"), "rb")
+    except FileNotFoundError:
+        clear_data()
+        print("Data file not found; created a new one.")
 
 
 def init_joystick() -> pygame.joystick.Joystick:
@@ -114,7 +144,21 @@ def init_joystick() -> pygame.joystick.Joystick:
     return joystick
 
 
-def toggle_fullscreen():
+def get_fullscreen() -> bool:
+    config = configparser.ConfigParser()
+    config.read(os.path.join("data", "settings.ini"))
+    return config["settings"].getboolean("fullscreen")
+
+
+def set_fullscreen():
+    config = configparser.ConfigParser()
+    config.read(os.path.join("data", "settings.ini"))
+    config["settings"]["fullscreen"] = str(not fullscreen)
+    with open(os.path.join("data", "settings.ini"), "w") as settings_file:
+        config.write(settings_file)
+
+
+def toggle_fullscreen() -> pygame.Surface:
     global fullscreen
 
     if not fullscreen:
@@ -190,7 +234,7 @@ def pause_state() -> int:
                     quit = 1
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
-        background.fill((0, 0, 255))
+        background.fill((16, 16, 216))
         pause.show(window, 0, 0)
         pygame.display.flip()
         clock.tick(48)
@@ -204,11 +248,12 @@ def game_over_state() -> int:
     flag = True
     quit = 0
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
-    button_font = pygame.font.SysFont("calibri", 50, True)
+    button_font = pygame.font.SysFont("calibri", 45, True)
+    title_text = pygame.font.SysFont("calibri", 60, True).render("Game Over", True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
-    button1 = Button(WIDTH // 2, HEIGHT // 2 - 85, (16, 16, 255), button_font, "RESTART", colors, True).set_offset_pos().set_selected()
-    button2 = Button(WIDTH // 2, HEIGHT // 2 - 25, (16, 16, 255), button_font, "EXIT", colors, True).set_offset_pos()
-    button3 = Button(WIDTH // 2, HEIGHT // 2 + 35, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
+    button1 = Button(WIDTH // 2, HEIGHT // 2 - 18, (16, 16, 255), button_font, "RESTART", colors, True).set_offset_pos().set_selected()
+    button2 = Button(WIDTH // 2, HEIGHT // 2 + 37, (16, 16, 255), button_font, "EXIT", colors, True).set_offset_pos()
+    button3 = Button(WIDTH // 2, HEIGHT // 2 + 92, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
     buttons = (button1, button2, button3)
     game_over = Room(buttons)
 
@@ -255,6 +300,7 @@ def game_over_state() -> int:
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
         background.fill((16, 16, 216))
+        window.blit(title_text, (WIDTH // 2 - 140, HEIGHT // 2 - 110))
         game_over.show(window, 0, 0)
         pygame.display.flip()
         clock.tick(48)
@@ -268,8 +314,8 @@ def options_state():
     flag = True
     flag2 = False
     button_font = pygame.font.SysFont("calibri", 55, True)
-    title_font = pygame.font.SysFont("calibri", 60, True)
-    title_text = title_font.render("Options", True, (255, 255, 255))
+    title_font = pygame.font.SysFont("calibri", 65, True)
+    title_text = title_font.render("Options", True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
     button1 = Button(WIDTH // 2, HEIGHT // 2 - 40, (16, 16, 255), button_font, "CLEAR DATA", colors, True).set_offset_pos().set_selected()
     button2 = Button(WIDTH // 2, HEIGHT // 2 + 30, (16, 16, 255), button_font, "VOLUME", colors, True).set_offset_pos()
@@ -289,11 +335,12 @@ def options_state():
                 elif event.key == pygame.K_DOWN:
                     options.update_button("down")
                 if options.button_pressed() == 0:
-                    pass
+                    clear_data()
                 elif options.button_pressed() == 1:
                     pass
                 elif options.button_pressed() == 2:
                     window = toggle_fullscreen()
+                    set_fullscreen()
                 elif options.button_pressed() == 3:
                     options.exit()
                     current_state = menu_state
@@ -310,18 +357,19 @@ def options_state():
             if joy.get_button(1) and flag2:
                 flag2 = False
                 if options.button_pressed(True) == 0:
-                    pass
+                    clear_data()
                 elif options.button_pressed(True) == 1:
                     pass
                 elif options.button_pressed(True) == 2:
                     window = toggle_fullscreen()
+                    set_fullscreen()
                 elif options.button_pressed(True) == 3:
                     options.exit()
                     current_state = menu_state
             elif not joy.get_button(1):
                 flag2 = True
 
-        options.show(window, WIDTH // 2 - 100, 100)
+        options.show(window, WIDTH // 2 - 110, 100)
         pygame.display.flip()
         clock.tick(48)
 
@@ -332,8 +380,11 @@ def menu_state():
     flag = True
     flag2 = False
     button_font = pygame.font.SysFont("calibri", 55, True)
-    title_font = pygame.font.SysFont("calibri", 70, True)
-    title_text = title_font.render("Snakesss...", True, (255, 255, 255))
+    best_score = load_best_score()
+    best_font = pygame.font.SysFont("calibri", 30, True)
+    score_text = best_font.render("Best Score: " + str(best_score[0]), True, (216, 216, 216))
+    date_text = pygame.font.SysFont('calibri', 30, True).render(best_score[1], True, (216, 216, 216))
+    title_text = pygame.font.SysFont("calibri", 85, True).render("Snakesss...", True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
     button1 = Button(WIDTH // 2, HEIGHT // 2 - 100, (16, 16, 255), button_font, "PLAY", colors, True).set_offset_pos().set_selected()
     button2 = Button(WIDTH // 2, HEIGHT // 2 - 30, (16, 16, 255), button_font, "OPTIONS", colors, True).set_offset_pos()
@@ -353,6 +404,8 @@ def menu_state():
                     menu.update_button("up")
                 elif event.key == pygame.K_DOWN:
                     menu.update_button("down")
+                elif event.key == pygame.K_s:
+                    print(load_best_score())
                 if menu.button_pressed() == 0:
                     menu.exit()
                     current_state = game_state
@@ -394,7 +447,9 @@ def menu_state():
             elif not joy.get_button(1):
                 flag2 = True
 
-        menu.show(window, 60, 40)
+        menu.show(window, 55, 40)
+        window.blit(score_text, (50, HEIGHT // 2 - 155))
+        window.blit(date_text, (50, HEIGHT // 2 - 123))
         pygame.display.flip()
         clock.tick(48)
 
@@ -402,6 +457,7 @@ def menu_state():
 def game_state():
     global running
 
+    score_font = pygame.font.SysFont("calibri", 35, True)
     score = 0
     snake = Snake()
     food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
@@ -466,24 +522,25 @@ def game_state():
             food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
         snake.show()
         food.show()
-        show_score(score)
+        window.blit(score_font.render("SCORE: " + str(score), True, (255, 255, 255)), (WIDTH // 2 - 72, 38))
         show_fps()
         pygame.display.flip()
         clock.tick(48)
 
+    save_best_score(score)
 
-environ["SDL_VIDEO_CENTERED"] = "1"
+
+fullscreen = get_fullscreen()
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
 window = toggle_fullscreen()
 pygame.display.set_caption("Snake")
 pygame.display.set_icon(pygame.image.load("gfx\\snake.png").convert_alpha())
 clock = pygame.time.Clock()
-
 fps_font = pygame.font.SysFont("calibri", 16, True)
-score_font = pygame.font.SysFont("calibri", 30, True)
 
+check_data_file()
 joy = init_joystick()
-
 current_state = menu_state
 
 while running:
