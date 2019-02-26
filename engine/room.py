@@ -23,7 +23,7 @@ class Room(object):
                 self.button_list[current_button].set_selected()
                 self.button_list[current_button + 1].set_selected()
 
-    def button_pressed(self, button=None) -> int:
+    def button_pressed(self, button=False) -> int:
         for i in range(len(self.button_list)):
             if self.button_list[i].pressed(button):
                 if self.sound is not None:
@@ -49,18 +49,27 @@ class MainMenu(Room):
             button.pressed()
 
 
-# class Settings(MainMenu):
-#     def __init__(self, title, button_list, sound, bg_color, slider_list):
-#         super().__init__(title, button_list, sound, bg_color)
-#         self.slider_list = slider_list
-#
-#     def show(self, surface, x, y):
-#         surface.fill(self.bg_color)
-#         surface.blit(self.title, (x, y))
-#         for button in self.button_list:
-#             button.show(surface)
-#             button.pressed()
-#         for slider in self.slider_list:
-#             slider.show(surface)
-#             slider.pressed()
-#             slider.change_volume()
+class Settings(MainMenu):
+    def __init__(self, title, button_list, sound, bg_color, slider_list=None):
+        super().__init__(title, button_list, sound, bg_color)
+        self.slider_list = slider_list
+
+    def show(self, surface, x, y):
+        surface.fill(self.bg_color)
+        surface.blit(self.title, (x, y))
+        for button in self.button_list:
+            button.show(surface)
+            button.pressed()
+        if self.slider_list is not None:
+            for slider in self.slider_list:
+                slider.show(surface)
+                slider.pressed()
+                slider.change_volume()
+
+    def button_pressed(self, button=False) -> int:
+        for i in range(len(self.button_list)):
+            if self.button_list[i].pressed(button):
+                if self.sound is not None:
+                    self.sound.play()
+                return i
+        return 16

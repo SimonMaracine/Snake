@@ -19,7 +19,7 @@ class Button(object):
         text = self.font.render(self.actual_text, self.antial, self.colors[0 if not self.highlight else 1])
         surface.blit(text, (self.x + 5, self.y + 2))
 
-    def pressed(self, button=None) -> bool:
+    def pressed(self, button=False) -> bool:
         if self.selected:
             self.highlight = True
             if key.get_pressed()[constants.K_RETURN] or button:
@@ -32,6 +32,11 @@ class Button(object):
 
     def set_selected(self):
         self.selected = not self.selected
+        return self
+
+    def set_offset_pos(self):
+        self.x -= self.width / 2
+        return self
 
 
 # class VolumeSlider(object):
