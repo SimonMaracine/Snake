@@ -13,7 +13,6 @@ GRID = 20
 WIDTH = 40 * GRID
 HEIGHT = 30 * GRID
 running = True
-no_joystick = True
 
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):
@@ -170,6 +169,7 @@ def init_joystick() -> pygame.joystick.Joystick:
         joystick.init()
     else:
         print("Joystick not found.")
+        no_joystick = True
         joystick = None
     return joystick
 
