@@ -1,13 +1,11 @@
 from engine.room import Room
 from engine.room_item import Button
-from src.common import WIDTH, HEIGHT, window, clock, no_joystick, joy
-from src.quit_state import quit_state
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, states, switch_state
 
 import pygame
 
-def pause_state() -> int:
+def pause_state(window) -> int:
     flag = True
-    quit = 0
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
     button_font = pygame.font.SysFont("calibri", 50, True)
     colors = ((0, 0, 0), (255, 255, 255))
@@ -17,13 +15,12 @@ def pause_state() -> int:
     button4 = Button(WIDTH // 2, HEIGHT // 2 + 70, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
     buttons = (button1, button2, button3, button4)
     pause = Room(buttons)
+    ret = 0
 
     while pause.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pause.exit()
-                current_state = quit_state
-                quit = 1
+                ret = switch_state(pause, states["quit"])
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     pause.update_button("up")
@@ -32,16 +29,11 @@ def pause_state() -> int:
                 if pause.button_pressed() == 0:
                     pause.exit()
                 elif pause.button_pressed() == 1:
-                    pause.exit()
-                    quit = 1
+                    ret = switch_state(pause, states["game"])
                 elif pause.button_pressed() == 2:
-                    pause.exit()
-                    quit = 1
-                    current_state = menu_state
+                    ret = switch_state(pause, states["menu"])
                 elif pause.button_pressed() == 3:
-                    pause.exit()
-                    current_state = quit_state
-                    quit = 1
+                    ret = switch_state(pause, states["quit"])
 
         if not no_joystick:
             if joy.get_hat(0) == (0, 1) and flag:
@@ -57,15 +49,10 @@ def pause_state() -> int:
                     pause.exit()
                 elif pause.button_pressed(True) == 1:
                     pause.exit()
-                    quit = 1
                 elif pause.button_pressed(True) == 2:
-                    pause.exit()
-                    quit = 1
-                    current_state = menu_state
+                    ret = switch_state(pause, states["menu"])
                 elif pause.button_pressed(True) == 3:
-                    pause.exit()
-                    current_state = quit_state
-                    quit = 1
+                    ret = switch_state(pause, states["quit"])
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
         background.fill((16, 16, 216))
@@ -73,4 +60,4 @@ def pause_state() -> int:
         pygame.display.flip()
         clock.tick(48)
 
-    return quit
+    return ret

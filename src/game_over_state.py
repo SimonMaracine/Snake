@@ -1,11 +1,11 @@
 from engine.room import Room
 from engine.room_item import Button
-from src.common import WIDTH, HEIGHT, window, clock, no_joystick, joy
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, states, switch_state
 from src.quit_state import quit_state
 
 import pygame
 
-def game_over_state():
+def game_over_state(window):
     flag = True
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
     button_font = pygame.font.SysFont("calibri", 45, True)
@@ -20,8 +20,7 @@ def game_over_state():
     while game_over.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                game_over.exit()
-                current_state = quit_state
+                ret = switch_state(game_over, states["quit"])
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     game_over.update_button("up")
@@ -30,11 +29,9 @@ def game_over_state():
                 if game_over.button_pressed() == 0:
                     game_over.exit()
                 elif game_over.button_pressed() == 1:
-                    game_over.exit()
-                    current_state = menu_state
+                    ret = switch_state(game_over, states["menu"])
                 elif game_over.button_pressed() == 2:
-                    game_over.exit()
-                    current_state = quit_state
+                    ret = switch_state(game_over, states["quit"])
 
         if not no_joystick:
             if joy.get_hat(0) == (0, 1) and flag:
@@ -47,13 +44,11 @@ def game_over_state():
                 flag = True
             if joy.get_button(1):
                 if game_over.button_pressed(True) == 0:
-                    game_over.exit()
+                    ret = switch_state(game_over, states["game"])
                 elif game_over.button_pressed(True) == 1:
-                    game_over.exit()
-                    current_state = menu_state
+                    ret = switch_state(game_over, states["menu"])
                 elif game_over.button_pressed(True) == 2:
-                    game_over.exit()
-                    current_state = quit_state
+                    ret = switch_state(game_over, states["quit"])
 
         window.blit(background, (WIDTH // 4, HEIGHT // 4))
         background.fill((16, 16, 216))
@@ -61,3 +56,5 @@ def game_over_state():
         game_over.show(window, 0, 0)
         pygame.display.flip()
         clock.tick(48)
+
+    return ret

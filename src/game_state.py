@@ -1,7 +1,7 @@
 from engine.room import Room
 from src.objects import Snake, Food
-from src.common import WIDTH, GRID, window, clock, no_joystick, joy, show_fps, switch_state
-from src.quit_state import quit_state
+from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, states
+from src.pause_state import pause_state
 
 import pygame
 import os
@@ -19,7 +19,7 @@ def save_best_score(score):
                 pickle.dump(data_to_write, data_file2)
 
 
-def game_state():
+def game_state(window):
     can_move = True
     score_font = pygame.font.SysFont("calibri", 35, True)
     score = 0
@@ -28,11 +28,12 @@ def game_state():
     MOVE = pygame.USEREVENT + 1
     pygame.time.set_timer(MOVE, 32)
     game = Room()
+    ret = 0
 
     while game.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                switch_state(0, -1, "exit")
+                ret = switch_state(game, states["quit"])
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT and not snake.dirs["left"] and can_move:
                     snake.dir = Vector(snake.vel, 0, 0)
@@ -51,8 +52,7 @@ def game_state():
                     snake.change_direction("up")
                     can_move = False
                 elif event.key == pygame.K_ESCAPE:
-                    if pause_state() == 1:
-                        game.exit()
+                    switch_state(game, pause_state)
                 elif event.key == pygame.K_b:
                     snake.grow()
             elif event.type == MOVE:
@@ -60,7 +60,7 @@ def game_state():
                 can_move = True
                 if snake.collide():
                     game.exit()
-                    game_over_state()
+                    ret = switch_state(game, states["game_over"])
 
         if pygame.key.get_pressed()[pygame.K_b]:
             snake.grow()
@@ -68,8 +68,7 @@ def game_state():
 
         if not no_joystick:
             if joy.get_button(9):
-                if pause_state() == 1:
-                    game.exit()
+                switch_state(game, pause_state)
             elif joy.get_button(3):
                 snake.grow()
             if joy.get_hat(0) == (-1, 0) and not snake.dirs["right"] and can_move:
@@ -102,4 +101,4 @@ def game_state():
         clock.tick(60)
 
     save_best_score(score)
-
+    return ret

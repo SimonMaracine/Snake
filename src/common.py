@@ -8,13 +8,19 @@ def show_fps():
     window.blit(fps_text, (6, HEIGHT - 25))
 
 
-def switch_state(from_state, to_state, mode="exit"):
-    if mode == "exit":
-        pass
-
-    elif mode == "on_top":
-        pass
-
+def switch_state(from_state, to_state) -> int:
+    if type(to_state) == int:
+        from_state.exit()
+        return to_state
+    else:
+        if to_state(window) == -1:
+            from_state.exit()
+            return -1
+        else:
+            for st in states:
+                if states[st] == to_state:
+                    print(states[st])
+                    return states[st]
 
 def clear_data():
     with open(os.path.join("data", "data.dat"), "wb") as data_file:
@@ -65,14 +71,15 @@ pygame.display.init()
 pygame.joystick.init()
 pygame.font.init()
 
-game_st = 0
-menu_st = 1
-options_st = 2
-set_controls_st = 3
-game_over_st = 4
-pause_st = 5
-ask_clear_st = 6
-quit_st = -1
+states = {"game": 0,
+          "menu": 1,
+          "options": 2,
+          "set_controls": 3,
+          "game_over": 4,
+          "pause": 5,
+          "ask_clear": 6,
+          "quit": -1
+          }
 
 GRID = 20
 WIDTH = 40 * GRID
@@ -83,4 +90,4 @@ window = toggle_fullscreen()
 joy = init_joystick()
 clock = pygame.time.Clock()
 fps_font = pygame.font.SysFont("calibri", 16, True)
-current_state = menu_st
+state = states["menu"]

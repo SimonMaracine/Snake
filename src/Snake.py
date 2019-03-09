@@ -1,4 +1,4 @@
-from src.common import clear_data, current_state
+from src.common import clear_data, state, window
 from src.game_state import game_state
 from src.menu_state import menu_state
 from src.options_state import options_state
@@ -24,15 +24,15 @@ pygame.display.set_icon(pygame.image.load("gfx\\snake.png").convert_alpha())
 check_data_file()
 
 while True:
-    if current_state == 0:
-        game_state()
-    elif current_state == 1:
-        menu_state()
-    elif current_state == 2:
-        options_state()
-    elif current_state == 3:
-        set_controls_state()
-    elif current_state == 4:
-        game_over_state()
-    elif current_state == -1:
+    if state == 0:
+        state = game_state(window)
+    elif state == 1:
+        state = menu_state(window)
+    elif state == 2:
+        state = options_state(window)
+    elif state == 3:
+        state = set_controls_state(window)
+    elif state == 4:
+        state = game_over_state(window)
+    elif state == -1:
         quit_state()
