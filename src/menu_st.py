@@ -1,10 +1,11 @@
-from engine.room import MainMenu
-from engine.room_item import Button
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, states
-
-import pygame
 import os
 import pickle
+import pygame
+
+from src import states
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state
+from engine.room import MainMenu
+from engine.room_item import Button
 
 def load_best_score() -> tuple:
     with open(os.path.join("data", "data.dat"), "rb") as data_file:
@@ -16,7 +17,7 @@ def load_best_score() -> tuple:
         return int(dt[0]), date_time
 
 
-def menu_state(window):
+def menu_state(window, control):
     flag = True
     flag2 = False
     button_font = pygame.font.SysFont("calibri", 55, True)
@@ -37,22 +38,22 @@ def menu_state(window):
     while menu.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                ret = switch_state(menu, states["quit"])
+                control["state"] = switch_state(menu, states.QUIT)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     menu.update_button("up")
                 elif event.key == pygame.K_DOWN:
                     menu.update_button("down")
                 if menu.button_pressed() == 0:
-                    ret = switch_state(menu, states["game"])
+                    control["state"] = switch_state(menu, states.GAME)
                 elif menu.button_pressed() == 1:
-                    ret = switch_state(menu, states["options"])
+                    control["state"] = switch_state(menu, states.OPTIONS)
                 elif menu.button_pressed() == 2:
                     pass
                 elif menu.button_pressed() == 3:
                     pass
                 elif menu.button_pressed() == 4:
-                    ret = switch_state(menu, states["quit"])
+                    control["state"] = switch_state(menu, states.QUIT)
 
         if not no_joystick:
             if joy.get_hat(0) == (0, 1) and flag:
@@ -66,15 +67,15 @@ def menu_state(window):
             if joy.get_button(1) and flag2:
                 flag2 = False
                 if menu.button_pressed(True) == 0:
-                    ret = switch_state(menu, states["game"])
+                    control["state"] = switch_state(menu, states.GAME)
                 elif menu.button_pressed(True) == 1:
-                    ret = switch_state(menu, states["options"])
+                    control["state"] = switch_state(menu, states.OPTIONS)
                 elif menu.button_pressed(True) == 2:
                     pass
                 elif menu.button_pressed(True) == 3:
                     pass
                 elif menu.button_pressed(True) == 4:
-                    ret = switch_state(menu, states["quit"])
+                    control["state"] = switch_state(menu, states.QUIT)
             elif not joy.get_button(1):
                 flag2 = True
 
@@ -83,5 +84,3 @@ def menu_state(window):
         window.blit(date_text, (50, HEIGHT // 2 - 123))
         pygame.display.flip()
         clock.tick(48)
-
-    return ret

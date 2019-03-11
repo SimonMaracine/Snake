@@ -1,14 +1,13 @@
-from engine.room import Room
-from src.objects import Snake, Food
-from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, states
-from src.pause_state import pause_state
-
-import pygame
 import os
-import pickle
 import datetime
+import pickle
 from random import randint
 from vectors import Vector
+import pygame
+
+from src import states, objects, pause_st
+from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state
+from engine.room import Room
 
 def save_best_score(score):
     with open(os.path.join("data", "data.dat"), "rb") as data_file:
@@ -19,21 +18,20 @@ def save_best_score(score):
                 pickle.dump(data_to_write, data_file2)
 
 
-def game_state(window):
+def game_state(window, control):
     can_move = True
     score_font = pygame.font.SysFont("calibri", 35, True)
     score = 0
-    snake = Snake()
-    food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
+    snake = objects.Snake()
+    food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
     pygame.time.set_timer(MOVE, 32)
     game = Room()
-    ret = 0
 
     while game.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                ret = switch_state(game, states["quit"])
+                control["state"] = switch_state(game, states.QUIT)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT and not snake.dirs["left"] and can_move:
                     snake.dir = Vector(snake.vel, 0, 0)
@@ -52,7 +50,7 @@ def game_state(window):
                     snake.change_direction("up")
                     can_move = False
                 elif event.key == pygame.K_ESCAPE:
-                    switch_state(game, pause_state)
+                    switch_state(game, pause_st.pause_state, window, control)
                 elif event.key == pygame.K_b:
                     snake.grow()
             elif event.type == MOVE:
@@ -60,7 +58,7 @@ def game_state(window):
                 can_move = True
                 if snake.collide():
                     game.exit()
-                    ret = switch_state(game, states["game_over"])
+                    control["state"] = switch_state(game, states.GAME_OVER)
 
         if pygame.key.get_pressed()[pygame.K_b]:
             snake.grow()
@@ -68,7 +66,7 @@ def game_state(window):
 
         if not no_joystick:
             if joy.get_button(9):
-                switch_state(game, pause_state)
+                switch_state(None, pause_st.pause_state, window, control)
             elif joy.get_button(3):
                 snake.grow()
             if joy.get_hat(0) == (-1, 0) and not snake.dirs["right"] and can_move:
@@ -92,13 +90,12 @@ def game_state(window):
         if snake.eat(food):
             snake.grow()
             score += 1
-            food = Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
-        snake.show()
-        food.show()
+            food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
+        snake.show(window)
+        food.show(window)
         window.blit(score_font.render("SCORE: " + str(score), True, (255, 255, 255)), (WIDTH // 2 - 72, 38))
-        show_fps()
+        show_fps(window)
         pygame.display.flip()
         clock.tick(60)
 
     save_best_score(score)
-    return ret

@@ -1,13 +1,14 @@
-from engine.room import Room
-from engine.room_item import Button
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, states, switch_state
-
 import pygame
 
-def ask_clear_state(window) -> int:
+from src import states
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, switch_state
+from engine.room import Room
+from engine.room_item import Button
+
+def ask_clear_state(window, control) -> int:
     flag = True
     dark = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    dark.fill((0, 0, 0, 95))
+    dark.fill((0, 0, 0, 96))
     window.blit(dark, (0, 0))
     background = pygame.Surface((WIDTH // 2 - 150, HEIGHT // 2 - 150))
     button_font = pygame.font.SysFont("calibri", 41, True)
@@ -16,12 +17,13 @@ def ask_clear_state(window) -> int:
     button2 = Button(WIDTH // 2, HEIGHT // 2 + 10, (16, 16, 255), button_font, "CANCEL", colors, True).set_offset_pos()
     buttons = (button1, button2)
     ask_clear = Room(buttons)
-    ret = -16
+    q = 0
 
     while ask_clear.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                ret = switch_state(ask_clear, states["quit"])
+                control["state"] = switch_state(ask_clear, states.QUIT)
+                q = 1
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     ask_clear.update_button("up")
@@ -55,4 +57,4 @@ def ask_clear_state(window) -> int:
         pygame.display.flip()
         clock.tick(48)
 
-    return ret
+    return q

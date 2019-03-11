@@ -1,8 +1,8 @@
-from src.common import WIDTH, HEIGHT, GRID, window
-
-import pygame
-from vectors import Vector
 from copy import deepcopy
+from vectors import Vector
+import pygame
+
+from src.common import WIDTH, HEIGHT, GRID
 
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):
@@ -16,7 +16,7 @@ class Snake(object):
                      Vector(self.x + GRID * 2, self.y, 0)]
         self.dirs = {"left": False, "right": True, "up": False, "down": False}
 
-    def show(self):
+    def show(self, window):
         for i in range(len(self.body) - 1):
             pygame.draw.rect(window, (255, 255, 255), (self.body[i].x + 1, self.body[i].y + 1, self.width, self.width))
         pygame.draw.rect(window, (160, 160, 255), (self.body[-1].x + 1, self.body[-1].y + 1, self.width, self.width))
@@ -76,6 +76,5 @@ class Food(object):
         self.width = GRID - 5
         self.color = (240, 100, 100)
 
-    def show(self):
+    def show(self, window):
         pygame.draw.rect(window, self.color, (self.x + 3, self.y + 3, self.width, self.width))
-

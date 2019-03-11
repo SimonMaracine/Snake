@@ -1,10 +1,11 @@
-from engine.room import Settings
-from engine.room_item import Button
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, states, switch_state
-
-import pygame
 import os
 import configparser
+import pygame
+
+from src import states
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state
+from engine.room import Settings
+from engine.room_item import Button
 
 def set_controls() -> str:
     while True:
@@ -35,7 +36,7 @@ def get_controls() -> tuple:
     return left, right, up, down, accept, pause
 
 
-def set_controls_state(window):
+def set_controls_state(window, control):
     flag = True
     flag2 = False
     show_press = False
@@ -65,7 +66,7 @@ def set_controls_state(window):
     while controls.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                ret = switch_state(controls, states["quit"])
+                control["state"] = switch_state(controls, states.QUIT)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     controls.update_button("up")
@@ -84,7 +85,7 @@ def set_controls_state(window):
                 elif controls.button_pressed() == 5:  # pause
                     show_press = True
                 elif controls.button_pressed() == 6:
-                    ret = switch_state(controls, states["options"])
+                    control["state"] = switch_state(controls, states.OPTIONS)
 
         if not no_joystick:
             if joy.get_hat(0) == (0, 1) and flag:
@@ -110,7 +111,7 @@ def set_controls_state(window):
                 elif controls.button_pressed(True) == 5:
                     pass
                 elif controls.button_pressed(True) == 6:
-                    ret = switch_state(controls, states["options"])
+                    control["state"] = switch_state(controls, states.OPTIONS)
             elif not joy.get_button(1):
                 flag2 = True
 
@@ -126,5 +127,3 @@ def set_controls_state(window):
         window.blit(pause_text, (WIDTH // 2 + 150, HEIGHT // 2 + 60))
         pygame.display.flip()
         clock.tick(48)
-
-    return ret
