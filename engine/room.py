@@ -65,11 +65,3 @@ class Settings(MainMenu):
                 slider.show(surface)
                 slider.pressed()
                 slider.change_volume()
-
-    def button_pressed(self, button=False) -> int:
-        for i in range(len(self.button_list)):
-            if self.button_list[i].pressed(button):
-                if self.sound is not None:
-                    self.sound.play()
-                return i
-        return 16
