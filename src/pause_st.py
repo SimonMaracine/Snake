@@ -1,12 +1,13 @@
 import pygame
 
 from src import states
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import Room
 from engine.room_item import Button
 
 def pause_state(window, control) -> int:
     flag = True
+    joy_ctrl = read_all_controls()
     background = pygame.Surface((WIDTH // 2, HEIGHT // 2))
     button_font = pygame.font.SysFont("calibri", 50, True)
     colors = ((0, 0, 0), (255, 255, 255))
@@ -41,15 +42,15 @@ def pause_state(window, control) -> int:
                     q = 1
 
         if not no_joystick:
-            if joy.get_hat(0) == (0, 1) and flag:
+            if str(joy.get_hat(0)) == joy_ctrl["up"] and flag:
                 pause.update_button("up")
                 flag = False
-            elif joy.get_hat(0) == (0, -1) and flag:
+            elif str(joy.get_hat(0)) == joy_ctrl["down"] and flag:
                 pause.update_button("down")
                 flag = False
             if joy.get_hat(0) == (0, 0):
                 flag = True
-            if joy.get_button(1):
+            if joy.get_button(joy_ctrl["accept"]):
                 if pause.button_pressed(True) == 0:
                     pause.exit()
                 elif pause.button_pressed(True) == 1:

@@ -6,7 +6,7 @@ from vectors import Vector
 import pygame
 
 from src import states, objects, pause_st
-from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state
+from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, read_all_controls
 from engine.room import Room
 
 def save_best_score(score):
@@ -19,6 +19,7 @@ def save_best_score(score):
 
 
 def game_state(window, control):
+    joy_ctrl = read_all_controls()
     can_move = True
     score_font = pygame.font.SysFont("calibri", 35, True)
     score = 0
@@ -60,28 +61,28 @@ def game_state(window, control):
                     game.exit()
                     control["state"] = switch_state(game, states.GAME_OVER)
 
-        if pygame.key.get_pressed()[pygame.K_b]:
-            snake.grow()
-            # print(len(snake.body))
+        # if pygame.key.get_pressed()[pygame.K_b]:
+        #     snake.grow()
+        #     # print(len(snake.body))
 
         if not no_joystick:
-            if joy.get_button(9):
-                switch_state(None, pause_st.pause_state, window, control)
-            elif joy.get_button(3):
-                snake.grow()
-            if joy.get_hat(0) == (-1, 0) and not snake.dirs["right"] and can_move:
+            if joy.get_button(joy_ctrl["pause"]):
+                switch_state(game, pause_st.pause_state, window, control)
+            # elif joy.get_button(3):
+            #     snake.grow()
+            if str(joy.get_hat(0)) == joy_ctrl["left"] and not snake.dirs["right"] and can_move:
                 snake.dir = Vector(-snake.vel, 0, 0)
                 snake.change_direction("left")
                 can_move = False
-            elif joy.get_hat(0) == (1, 0) and not snake.dirs["left"] and can_move:
+            elif str(joy.get_hat(0)) == joy_ctrl["right"] and not snake.dirs["left"] and can_move:
                 snake.dir = Vector(snake.vel, 0, 0)
                 snake.change_direction("right")
                 can_move = False
-            elif joy.get_hat(0) == (0, 1) and not snake.dirs["down"] and can_move:
+            elif str(joy.get_hat(0)) == joy_ctrl["up"] and not snake.dirs["down"] and can_move:
                 snake.dir = Vector(0, -snake.vel, 0)
                 snake.change_direction("up")
                 can_move = False
-            elif joy.get_hat(0) == (0, -1) and not snake.dirs["up"] and can_move:
+            elif str(joy.get_hat(0)) == joy_ctrl["down"] and not snake.dirs["up"] and can_move:
                 snake.dir = Vector(0, snake.vel, 0)
                 snake.change_direction("down")
                 can_move = False

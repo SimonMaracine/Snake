@@ -15,7 +15,7 @@ def switch_state(from_state, to_state, window=None, control=None) -> int:
     else:
         if to_state(window, control) == 1:
             from_state.exit()
-            return -16
+        return -16
 
 
 def clear_data():
@@ -27,6 +27,18 @@ def clear_data():
 def reset_settings():
     with open(os.path.join("data", "settings.ini"), "w") as settings_file:
         settings_file.write("[DEFAULT]\nfullscreen = False\nvolume = 0.7\nleft = (-1, 0)\nright = (1, 0)\nup = (0, 1)\ndown = (0, -1)\naccept = 1\npause = 9\n\n[Settings]\n\n[Joy_controls]\n\n")
+
+
+def read_all_controls() -> dict:
+    config = configparser.ConfigParser()
+    config.read(os.path.join("data", "settings.ini"))
+    left = config["Joy_controls"]["left"]
+    right = config["Joy_controls"]["right"]
+    up = config["Joy_controls"]["up"]
+    down = config["Joy_controls"]["down"]
+    accept = int(config["Joy_controls"]["accept"])
+    pause = int(config["Joy_controls"]["pause"])
+    return {"left": left, "right": right, "up": up, "down": down, "accept": accept, "pause": pause}
 
 
 def get_fullscreen() -> bool:

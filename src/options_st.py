@@ -1,13 +1,14 @@
 import pygame
 
 from src import states, ask_clear_st
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, set_fullscreen, switch_state
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, set_fullscreen, switch_state, read_all_controls
 from engine.room import MainMenu
 from engine.room_item import Button
 
 def options_state(window, control):
     flag = True
     flag2 = False
+    joy_ctrl = read_all_controls()
     button_font = pygame.font.SysFont("calibri", 55, True)
     title_font = pygame.font.SysFont("calibri", 65, True)
     title_text = title_font.render("Options", True, (240, 240, 240))
@@ -42,28 +43,28 @@ def options_state(window, control):
                     control["state"] = switch_state(options, states.MENU)
 
         if not no_joystick:
-            if joy.get_hat(0) == (0, 1) and flag:
+            if str(joy.get_hat(0)) == joy_ctrl["up"] and flag:
                 options.update_button("up")
                 flag = False
-            elif joy.get_hat(0) == (0, -1) and flag:
+            elif str(joy.get_hat(0)) == joy_ctrl["down"] and flag:
                 options.update_button("down")
                 flag = False
             elif joy.get_hat(0) == (0, 0):
                 flag = True
-            if joy.get_button(1) and flag2:
+            if joy.get_button(joy_ctrl["accept"]) and flag2:
                 flag2 = False
                 if options.button_pressed(True) == 0:
-                    switch_state(options, ask_clear_st, window, control)
+                    switch_state(options, ask_clear_st.ask_clear_state, window, control)
                 elif options.button_pressed(True) == 1:
                     pass
                 elif options.button_pressed(True) == 2:
-                    window = toggle_fullscreen(control["fullscreen"])
-                    set_fullscreen(control["fullscreen"])
+                    window = toggle_fullscreen(control)
+                    set_fullscreen(control)
                 elif options.button_pressed(True) == 3:
                     control["state"] = switch_state(options, states.SET_CONTROLS)
                 elif options.button_pressed(True) == 4:
                     control["state"] = switch_state(options, states.MENU)
-            elif not joy.get_button(1):
+            elif not joy.get_button(joy_ctrl["accept"]):
                 flag2 = True
 
         options.show(window, WIDTH // 2 - 110, 100)

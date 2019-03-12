@@ -1,12 +1,14 @@
 import pygame
 
 from src import states
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, switch_state
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, switch_state, read_all_controls
 from engine.room import Room
 from engine.room_item import Button
 
 def ask_clear_state(window, control) -> int:
     flag = True
+    flag2 = False
+    joy_ctrl = read_all_controls()
     dark = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     dark.fill((0, 0, 0, 96))
     window.blit(dark, (0, 0))
@@ -36,20 +38,23 @@ def ask_clear_state(window, control) -> int:
                     ask_clear.exit()
 
         if not no_joystick:
-            if joy.get_hat(0) == (0, 1) and flag:
+            if str(joy.get_hat(0)) == joy_ctrl["up"] and flag:
                 ask_clear.update_button("up")
                 flag = False
-            elif joy.get_hat(0) == (0, -1) and flag:
+            elif str(joy.get_hat(0)) == joy_ctrl["down"] and flag:
                 ask_clear.update_button("down")
                 flag = False
             if joy.get_hat(0) == (0, 0):
                 flag = True
-            if joy.get_button(1):
+            if joy.get_button(joy_ctrl["accept"]) and flag2:
+                flag2 = False
                 if ask_clear.button_pressed(True) == 0:
                     clear_data()
                     ask_clear.exit()
                 elif ask_clear.button_pressed(True) == 1:
                     ask_clear.exit()
+            elif not joy.get_button(joy_ctrl["accept"]):
+                flag2 = True
 
         window.blit(background, (WIDTH // 4 + 75, HEIGHT // 4 + 75))
         background.fill((16, 16, 216))

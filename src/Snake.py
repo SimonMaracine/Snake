@@ -27,6 +27,7 @@ if __name__ == "__main__":
     window = toggle_fullscreen(control)
     pygame.display.set_caption("Snake")
     pygame.display.set_icon(pygame.image.load("gfx\\snake.png").convert_alpha())
+    pygame.mouse.set_visible(False)
 
     while True:
         state = control["state"]

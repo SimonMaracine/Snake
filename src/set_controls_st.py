@@ -3,55 +3,55 @@ import configparser
 import pygame
 
 from src import states
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state
+from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import Settings
 from engine.room_item import Button
 
-def set_controls() -> str:
+def get_control(window, press_text) -> str:
+    window.blit(press_text, (WIDTH // 2 - 100, HEIGHT // 2 + 100))
+    pygame.display.flip()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "None"
-            if event.type == pygame.JOYBUTTONDOWN:
-                if not no_joystick:
-                    for button in joy.get_buttons():
+            if not no_joystick:
+                if event.type == pygame.JOYBUTTONDOWN:
+                    for i in range(joy.get_numbuttons()):
+                        button = joy.get_button(i)
                         if button:
-                            print(button)
-                            return button
-                    for direction in joy.get_hats()[0]:
-                        if direction:
-                            print(direction)
-                            return direction
+                            return str(i)
+                hat = str(joy.get_hat(0))
+                if hat in ("(1, 0)", "(0, 1)", "(-1, 0)", "(0, -1)"):
+                    return hat
+            else:
+                print("No joystick detected.")
+                return "None"
 
 
-def get_controls() -> tuple:
+def set_control(control, button):
     config = configparser.ConfigParser()
     config.read(os.path.join("data", "settings.ini"))
-    left = config["Joy_controls"]["left"]
-    right = config["Joy_controls"]["right"]
-    up = config["Joy_controls"]["up"]
-    down = config["Joy_controls"]["down"]
-    accept = config["Joy_controls"]["accept"]
-    pause = config["Joy_controls"]["pause"]
-    return left, right, up, down, accept, pause
+    config["Joy_controls"][control] = button
+    with open(os.path.join("data", "settings.ini"), "w") as settings_file:
+        config.write(settings_file)
 
 
 def set_controls_state(window, control):
     flag = True
     flag2 = False
-    show_press = False
+    joy_ctrl = read_all_controls()
     button_font = pygame.font.SysFont("calibri", 55, True)
     title_font = pygame.font.SysFont("calibri", 65, True)
     controls_font = pygame.font.SysFont("calibri", 24, True)
     title_text = title_font.render("Controls", True, (240, 240, 240))
     press_text = pygame.font.SysFont("calibri", 30, True).render("Press any button", True, (240, 240, 240))
-    joy_ctrl = get_controls()
-    left_text = controls_font.render(joy_ctrl[0], True, (240, 240, 240))
-    right_text = controls_font.render(joy_ctrl[1], True, (240, 240, 240))
-    up_text = controls_font.render(joy_ctrl[2], True, (240, 240, 240))
-    down_text = controls_font.render(joy_ctrl[3], True, (240, 240, 240))
-    accept_text = controls_font.render(joy_ctrl[4], True, (240, 240, 240))
-    pause_text = controls_font.render(joy_ctrl[5], True, (240, 240, 240))
+    left_text = controls_font.render(joy_ctrl["left"], True, (240, 240, 240))
+    right_text = controls_font.render(joy_ctrl["right"], True, (240, 240, 240))
+    up_text = controls_font.render(joy_ctrl["up"], True, (240, 240, 240))
+    down_text = controls_font.render(joy_ctrl["down"], True, (240, 240, 240))
+    accept_text = controls_font.render(str(joy_ctrl["accept"]), True, (240, 240, 240))
+    pause_text = controls_font.render(str(joy_ctrl["pause"]), True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
     button1 = Button(WIDTH // 2 - 190, HEIGHT // 2 - 100, (16, 16, 255), button_font, "left", colors, True).set_offset_pos()
     button2 = Button(WIDTH // 2 - 30, HEIGHT // 2 - 100, (16, 16, 255), button_font, "right", colors, True).set_offset_pos()
@@ -73,51 +73,74 @@ def set_controls_state(window, control):
                 elif event.key == pygame.K_DOWN:
                     controls.update_button("down")
                 if controls.button_pressed() == 0:  # left
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("left", button)
+                    left_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 1:  # right
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("right", button)
+                    right_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 2:  # up
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("up", button)
+                    up_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 3:  # down
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("down", button)
+                    down_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 4:  # accept
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("accept", button)
+                    accept_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 5:  # pause
-                    show_press = True
+                    button = get_control(window, press_text)
+                    set_control("pause", button)
+                    pause_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed() == 6:
                     control["state"] = switch_state(controls, states.OPTIONS)
 
         if not no_joystick:
-            if joy.get_hat(0) == (0, 1) and flag:
+            if str(joy.get_hat(0)) == joy_ctrl["up"] and flag:
                 controls.update_button("up")
                 flag = False
-            elif joy.get_hat(0) == (0, -1) and flag:
+            elif str(joy.get_hat(0)) == joy_ctrl["down"] and flag:
                 controls.update_button("down")
                 flag = False
             elif joy.get_hat(0) == (0, 0):
                 flag = True
-            if joy.get_button(1) and flag2:
+            if joy.get_button(joy_ctrl["accept"]) and flag2:
+                flag = False
                 flag2 = False
                 if controls.button_pressed(True) == 0:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("left", button)
+                    left_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 1:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("right", button)
+                    right_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 2:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("up", button)
+                    up_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 3:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("down", button)
+                    down_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 4:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("accept", button)
+                    accept_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 5:
-                    pass
+                    button = get_control(window, press_text)
+                    set_control("pause", button)
+                    pause_text = controls_font.render(button, True, (240, 240, 240))
                 elif controls.button_pressed(True) == 6:
                     control["state"] = switch_state(controls, states.OPTIONS)
-            elif not joy.get_button(1):
+            elif not joy.get_button(joy_ctrl["accept"]):
                 flag2 = True
 
         controls.show(window, WIDTH // 2 - 110, 100)
-        if show_press:
-            window.blit(press_text, (WIDTH // 2 - 100, HEIGHT // 2 + 100))
         window.blit(left_text, (WIDTH // 2 - 215, HEIGHT // 2 - 40))
         window.blit(right_text, (WIDTH // 2 - 55, HEIGHT // 2 - 40))
         window.blit(up_text, (WIDTH // 2 - 215, HEIGHT // 2 + 60))
