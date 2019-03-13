@@ -1,5 +1,6 @@
 import pygame
 
+from src.res import button_sound
 from src import states
 from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, switch_state, read_all_controls
 from engine.room import Room
@@ -18,7 +19,7 @@ def ask_clear_state(window, control) -> int:
     button1 = Button(WIDTH // 2, HEIGHT // 2 - 40, (16, 16, 255), button_font, "COMMIT", colors, True).set_offset_pos().set_selected()
     button2 = Button(WIDTH // 2, HEIGHT // 2 + 10, (16, 16, 255), button_font, "CANCEL", colors, True).set_offset_pos()
     buttons = (button1, button2)
-    ask_clear = Room(buttons)
+    ask_clear = Room(buttons, button_sound)
     q = 0
 
     while ask_clear.run:

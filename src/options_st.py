@@ -1,5 +1,6 @@
 import pygame
 
+from src.res import button_sound
 from src import states, ask_clear_st
 from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, set_fullscreen, switch_state, read_all_controls
 from engine.room import MainMenu
@@ -19,7 +20,7 @@ def options_state(window, control):
     button4 = Button(WIDTH // 2, HEIGHT // 2 + 100, (16, 16, 255), button_font, "SET CONTROLS", colors, True).set_offset_pos()
     button5 = Button(WIDTH // 2, HEIGHT // 2 + 170, (16, 16, 255), button_font, "BACK", colors, True).set_offset_pos()
     buttons = (button1, button2, button3, button4, button5)
-    options = MainMenu(title_text, buttons, None, (16, 16, 216))
+    options = MainMenu(title_text, buttons, button_sound, (16, 16, 216))
 
     while options.run:
         for event in pygame.event.get():

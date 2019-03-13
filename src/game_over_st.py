@@ -1,5 +1,6 @@
 import pygame
 
+from src.res import button_sound
 from src import states
 from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import Room
@@ -16,7 +17,7 @@ def game_over_state(window, control):
     button2 = Button(WIDTH // 2, HEIGHT // 2 + 35, (16, 16, 255), button_font, "EXIT", colors, True).set_offset_pos()
     button3 = Button(WIDTH // 2, HEIGHT // 2 + 90, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
     buttons = (button1, button2, button3)
-    game_over = Room(buttons)
+    game_over = Room(buttons, button_sound)
 
     while game_over.run:
         for event in pygame.event.get():

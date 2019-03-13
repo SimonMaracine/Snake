@@ -2,6 +2,7 @@ import os
 import configparser
 import pygame
 
+from src.res import button_sound
 from src import states
 from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import Settings
@@ -61,7 +62,7 @@ def set_controls_state(window, control):
     button6 = Button(WIDTH // 2 + 160, HEIGHT // 2, (16, 16, 255), button_font, "pause", colors, True).set_offset_pos()
     button7 = Button(WIDTH // 2, HEIGHT // 2 + 170, (16, 16, 255), button_font, "BACK", colors, True).set_offset_pos().set_selected()
     buttons = (button1, button2, button3, button4, button5, button6, button7)
-    controls = Settings(title_text, buttons, None, (16, 16, 216))
+    controls = Settings(title_text, buttons, button_sound, (16, 16, 216))
 
     while controls.run:
         for event in pygame.event.get():

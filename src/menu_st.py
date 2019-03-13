@@ -2,6 +2,7 @@ import os
 import pickle
 import pygame
 
+from src.res import button_sound
 from src import states
 from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import MainMenu
@@ -36,7 +37,7 @@ def menu_state(window, control):
     button4 = Button(WIDTH // 2, HEIGHT // 2 + 110, (16, 16, 255), button_font, "HIGH SCORES", colors, True).set_offset_pos()
     button5 = Button(WIDTH // 2, HEIGHT // 2 + 180, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
     buttons = (button1, button2, button3, button4, button5)
-    menu = MainMenu(title_text, buttons, None, (16, 16, 216))
+    menu = MainMenu(title_text, buttons, button_sound, (16, 16, 216))
 
     while menu.run:
         for event in pygame.event.get():
@@ -48,7 +49,7 @@ def menu_state(window, control):
                 elif event.key == pygame.K_DOWN:
                     menu.update_button("down")
                 if menu.button_pressed() == 0:
-                    control["state"] = switch_state(menu, states.GAME)
+                    control["state"] = switch_state(menu, states.GAME_START)
                 elif menu.button_pressed() == 1:
                     control["state"] = switch_state(menu, states.OPTIONS)
                 elif menu.button_pressed() == 2:
@@ -70,7 +71,7 @@ def menu_state(window, control):
             if joy.get_button(joy_ctrl["accept"]) and flag2:
                 flag2 = False
                 if menu.button_pressed(True) == 0:
-                    control["state"] = switch_state(menu, states.GAME)
+                    control["state"] = switch_state(menu, states.GAME_START)
                 elif menu.button_pressed(True) == 1:
                     control["state"] = switch_state(menu, states.OPTIONS)
                 elif menu.button_pressed(True) == 2:

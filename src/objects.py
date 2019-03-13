@@ -2,6 +2,7 @@ from copy import deepcopy
 from vectors import Vector
 import pygame
 
+from src.res import eat_sound, hit_sound
 from src.common import WIDTH, HEIGHT, GRID
 
 class Snake(object):
@@ -44,6 +45,7 @@ class Snake(object):
         y = self.body[-1].y
         if food.x + food.width > x + self.width / 2 > food.x:
             if food.y + food.width > y + self.width / 2 > food.y:
+                eat_sound.play()
                 return True
         else:
             return False
@@ -58,6 +60,7 @@ class Snake(object):
         for part in self.body[0:len(self.body) - 2]:
             if part.x + self.width > x + self.width / 2 > part.x:
                 if part.y + self.width > y + self.width / 2 > part.y:
+                    hit_sound.play()
                     return True
         return False
 
@@ -78,3 +81,7 @@ class Food(object):
 
     def show(self, window):
         pygame.draw.rect(window, self.color, (self.x + 3, self.y + 3, self.width, self.width))
+
+
+class XFood(Food):
+    pass

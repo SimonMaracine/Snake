@@ -1,7 +1,7 @@
 import os
 import pygame
 
-from src import states, game_st, menu_st, options_st, set_controls_st, game_over_st, quit_st
+from src import states, game_st, menu_st, options_st, set_controls_st, game_over_st, quit_st, game_start_st
 from src.common import clear_data, reset_settings, get_fullscreen, toggle_fullscreen
 
 def check_files():
@@ -41,5 +41,7 @@ if __name__ == "__main__":
             set_controls_st.set_controls_state(window, control)
         elif state == 4:
             game_over_st.game_over_state(window, control)
+        elif state == 7:
+            game_start_st.game_start_state(window, control)
         elif state == -1:
             quit_st.quit_state()
