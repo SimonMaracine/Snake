@@ -21,7 +21,7 @@ def check_files():
 if __name__ == "__main__":
     check_files()
     fullscreen = get_fullscreen()
-    control = {"running": True, "state": states.MENU, "fullscreen": fullscreen}  # dict object; passed by reference
+    control = {"running": True, "state": states.MENU, "fullscreen": fullscreen, "game_mode": "normal"}  # dict object; passed by reference
     os.environ["SDL_VIDEO_CENTERED"] = "1"
     pygame.display.init()
     window = toggle_fullscreen(control)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     while True:
         state = control["state"]
         if state == 0:
-            game_st.game_state(window, control)
+            game_st.game_state1(window, control)
         elif state == 1:
             menu_st.menu_state(window, control)
         elif state == 2:
@@ -43,5 +43,9 @@ if __name__ == "__main__":
             game_over_st.game_over_state(window, control)
         elif state == 7:
             game_start_st.game_start_state(window, control)
+        elif state == 8:
+            game_st.game_state2(window, control)
+        elif state == 9:
+            game_st.game_state3(window, control)
         elif state == -1:
             quit_st.quit_state()

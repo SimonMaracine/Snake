@@ -18,6 +18,12 @@ def game_over_state(window, control):
     button3 = Button(WIDTH // 2, HEIGHT // 2 + 90, (16, 16, 255), button_font, "QUIT", colors, True).set_offset_pos()
     buttons = (button1, button2, button3)
     game_over = Room(buttons, button_sound)
+    if control["game_mode"] == "easy":
+        game_mode = states.GAME_2
+    elif control["game_mode"] == "hard":
+        game_mode = states.GAME_3
+    else:
+        game_mode = states.GAME_1
 
     while game_over.run:
         for event in pygame.event.get():
@@ -29,7 +35,7 @@ def game_over_state(window, control):
                 elif event.key == pygame.K_DOWN:
                     game_over.update_button("down")
                 if game_over.button_pressed() == 0:
-                    control["state"] = switch_state(game_over, states.GAME)
+                    control["state"] = switch_state(game_over, game_mode)
                 elif game_over.button_pressed() == 1:
                     control["state"] = switch_state(game_over, states.MENU)
                 elif game_over.button_pressed() == 2:
@@ -46,7 +52,7 @@ def game_over_state(window, control):
                 flag = True
             if joy.get_button(joy_ctrl["accept"]):
                 if game_over.button_pressed(True) == 0:
-                    control["state"] = switch_state(game_over, states.GAME)
+                    control["state"] = switch_state(game_over, game_mode)
                 elif game_over.button_pressed(True) == 1:
                     control["state"] = switch_state(game_over, states.MENU)
                 elif game_over.button_pressed(True) == 2:

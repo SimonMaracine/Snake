@@ -11,7 +11,7 @@ def game_start_state(window, control):
     flag2 = False
     joy_ctrl = read_all_controls()
     button_font = pygame.font.SysFont("calibri", 55, True)
-    title_text = pygame.font.SysFont("calibri", 80, True).render("Hmm...", True, (240, 240, 240))
+    title_text = pygame.font.SysFont("calibri", 65, True).render("Choose a difficulty:", True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
     button1 = Button(WIDTH // 2 - 300, HEIGHT // 2 + 60, (16, 16, 255), button_font, "EASY", colors, True).set_offset_pos()
     button2 = Button(WIDTH // 2 - 110, HEIGHT // 2 + 60, (16, 16, 255), button_font, "NORMAL", colors, True).set_offset_pos().set_selected()
@@ -31,11 +31,14 @@ def game_start_state(window, control):
                 elif event.key == pygame.K_DOWN:
                     start.update_button("down")
                 if start.button_pressed() == 0:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_2)
+                    control["game_mode"] = "normal"
                 elif start.button_pressed() == 1:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_1)
+                    control["game_mode"] = "easy"
                 elif start.button_pressed() == 2:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_3)
+                    control["game_mode"] = "hard"
                 elif start.button_pressed() == 3:
                     pass
                 elif start.button_pressed() == 4:
@@ -53,11 +56,14 @@ def game_start_state(window, control):
             if joy.get_button(joy_ctrl["accept"]) and flag2:
                 flag2 = False
                 if start.button_pressed(True) == 0:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_2)
+                    control["game_mode"] = "normal"
                 elif start.button_pressed(True) == 1:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_1)
+                    control["game_mode"] = "easy"
                 elif start.button_pressed(True) == 2:
-                    control["state"] = switch_state(start, states.GAME)
+                    control["state"] = switch_state(start, states.GAME_3)
+                    control["game_mode"] = "hard"
                 elif start.button_pressed(True) == 3:
                     pass
                 elif start.button_pressed(True) == 4:
@@ -65,7 +71,6 @@ def game_start_state(window, control):
             elif not joy.get_button(joy_ctrl["accept"]):
                 flag2 = True
 
-        start.show(window, 55, 40)
-
+        start.show(window, 140, 160)
         pygame.display.flip()
         clock.tick(48)

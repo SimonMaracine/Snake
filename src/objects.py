@@ -22,7 +22,7 @@ class Snake(object):
             pygame.draw.rect(window, (255, 255, 255), (self.body[i].x + 1, self.body[i].y + 1, self.width, self.width))
         pygame.draw.rect(window, (160, 160, 255), (self.body[-1].x + 1, self.body[-1].y + 1, self.width, self.width))
 
-    def move(self):
+    def move1(self):
         temp_body = deepcopy(self.body)
         head = temp_body[-1]
         for i in range(len(self.body) - 1):
@@ -39,6 +39,25 @@ class Snake(object):
             head.y = 0
         elif head.y < 0:
             head.y = HEIGHT
+
+    def move2(self):
+        temp_body = deepcopy(self.body)
+        head = temp_body[-1]
+        for i in range(len(self.body) - 1):
+            self.body[i] = self.body[i + 1]
+        self.body.pop()
+        head.x += self.dir.vector[0]
+        head.y += self.dir.vector[1]
+        self.body.append(head)
+        if head.x >= WIDTH:
+            return False
+        elif head.x + GRID <= 0:
+            return False
+        elif head.y >= HEIGHT:
+            return False
+        elif head.y + GRID <= 0:
+            return False
+        return True
 
     def eat(self, food) -> bool:
         x = self.body[-1].x
