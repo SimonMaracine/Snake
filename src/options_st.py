@@ -1,8 +1,8 @@
 import pygame
 
-from src.res import button_sound
-from src import states, ask_clear_st
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, set_fullscreen, switch_state, read_all_controls
+from res import button_sound
+import states, ask_clear_st
+from common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, set_fullscreen, switch_state, read_all_controls
 from engine.room import MainMenu
 from engine.room_item import Button
 

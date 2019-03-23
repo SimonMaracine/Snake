@@ -2,8 +2,8 @@ from copy import deepcopy
 from vectors import Vector
 import pygame
 
-from src.res import eat_sound, hit_sound
-from src.common import WIDTH, HEIGHT, GRID
+from res import eat_sound, hit_sound
+from common import WIDTH, HEIGHT, GRID
 
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):

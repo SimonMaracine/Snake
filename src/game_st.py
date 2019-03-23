@@ -5,8 +5,8 @@ from random import randint
 from vectors import Vector
 import pygame
 
-from src import states, objects, pause_st
-from src.common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, read_all_controls
+import states, objects, pause_st
+from common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, read_all_controls
 from engine.room import Room
 
 def save_best_score(score):

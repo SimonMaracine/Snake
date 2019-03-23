@@ -2,9 +2,9 @@ import os
 import pickle
 import pygame
 
-from src.res import button_sound
-from src import states
-from src.common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
+from res import button_sound
+import states
+from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_all_controls
 from engine.room import MainMenu
 from engine.room_item import Button
 

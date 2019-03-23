@@ -1,8 +1,8 @@
 import os
 import pygame
 
-from src import states, game_st, menu_st, options_st, set_controls_st, game_over_st, quit_st, game_start_st
-from src.common import clear_data, reset_settings, get_fullscreen, toggle_fullscreen
+import states, game_st, menu_st, options_st, set_controls_st, game_over_st, quit_st, game_start_st
+from common import clear_data, reset_settings, get_fullscreen, toggle_fullscreen
 
 def check_files():
     try:
