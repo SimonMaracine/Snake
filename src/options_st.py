@@ -6,6 +6,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, toggle_fullscreen, se
 from engine.room import MainMenu
 from engine.room_item import Button
 
+
 def options_state(window, control):
     flag = True
     flag2 = False

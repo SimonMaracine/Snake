@@ -3,6 +3,7 @@ import configparser
 import pickle
 import pygame
 
+
 def show_fps(window):
     fps_text = fps_font.render("FPS: " + str(round(clock.get_fps())), False, (255, 255, 255))
     window.blit(fps_text, (6, HEIGHT - 25))

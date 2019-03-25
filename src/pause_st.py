@@ -6,6 +6,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_al
 from engine.room import Room
 from engine.room_item import Button
 
+
 def pause_state(window, control) -> int:
     flag = True
     joy_ctrl = read_all_controls()
@@ -19,6 +20,12 @@ def pause_state(window, control) -> int:
     buttons = (button1, button2, button3, button4)
     pause = Room(buttons, button_sound)
     q = 0
+    if control["game_mode"] == "easy":
+        game_mode = states.GAME_2
+    elif control["game_mode"] == "hard":
+        game_mode = states.GAME_3
+    else:
+        game_mode = states.GAME_1
 
     while pause.run:
         for event in pygame.event.get():
@@ -33,7 +40,7 @@ def pause_state(window, control) -> int:
                 if pause.button_pressed() == 0:
                     pause.exit()
                 elif pause.button_pressed() == 1:
-                    control["state"] = switch_state(pause, states.GAME)
+                    control["state"] = switch_state(pause, game_mode)
                     q = 1
                 elif pause.button_pressed() == 2:
                     control["state"] = switch_state(pause, states.MENU)
@@ -55,7 +62,7 @@ def pause_state(window, control) -> int:
                 if pause.button_pressed(True) == 0:
                     pause.exit()
                 elif pause.button_pressed(True) == 1:
-                    control["state"] = switch_state(pause, states.GAME)
+                    control["state"] = switch_state(pause, game_mode)
                     q = 1
                 elif pause.button_pressed(True) == 2:
                     control["state"] = switch_state(pause, states.MENU)

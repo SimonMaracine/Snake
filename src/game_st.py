@@ -9,6 +9,7 @@ import states, objects, pause_st
 from common import WIDTH, GRID, clock, no_joystick, joy, show_fps, switch_state, read_all_controls
 from engine.room import Room
 
+
 def save_best_score(score):
     with open(os.path.join("data", "data.dat"), "rb") as data_file:
         prev_best_score = int(pickle.load(data_file)[0])
@@ -26,7 +27,7 @@ def game_state1(window, control):  # NORMAL
     snake = objects.Snake()
     food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 35)
+    pygame.time.set_timer(MOVE, 37)
     game = Room()
 
     while game.run:
@@ -103,7 +104,7 @@ def game_state2(window, control):  # EASY
     snake = objects.Snake()
     food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 50)
+    pygame.time.set_timer(MOVE, 60)
     game = Room()
 
     while game.run:
@@ -180,7 +181,7 @@ def game_state3(window, control):  # HARD
     snake = objects.Snake()
     food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 33)
+    pygame.time.set_timer(MOVE, 35)
     game = Room()
 
     while game.run:

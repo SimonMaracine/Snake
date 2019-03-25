@@ -8,6 +8,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_al
 from engine.room import MainMenu
 from engine.room_item import Button
 
+
 def load_best_score() -> tuple:
     with open(os.path.join("data", "data.dat"), "rb") as data_file:
         dt = pickle.load(data_file)

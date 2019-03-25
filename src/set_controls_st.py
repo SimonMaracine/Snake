@@ -8,6 +8,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_al
 from engine.room import Settings
 from engine.room_item import Button
 
+
 def get_control(window, press_text) -> str:
     window.blit(press_text, (WIDTH // 2 - 100, HEIGHT // 2 + 100))
     pygame.display.flip()

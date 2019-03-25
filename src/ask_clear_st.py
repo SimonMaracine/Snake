@@ -6,6 +6,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, clear_data, switch_st
 from engine.room import Room
 from engine.room_item import Button
 
+
 def ask_clear_state(window, control) -> int:
     flag = True
     flag2 = False

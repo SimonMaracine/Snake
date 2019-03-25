@@ -1,5 +1,6 @@
 from pygame import draw, key, constants
 
+
 class Button(object):
     def __init__(self, x, y, color, font, actual_text, colors, antial=False):
         self.x = x

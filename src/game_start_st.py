@@ -6,6 +6,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_al
 from engine.room import MainMenu
 from engine.room_item import Button
 
+
 def game_start_state(window, control):
     flag = True
     flag2 = False
@@ -32,10 +33,10 @@ def game_start_state(window, control):
                     start.update_button("down")
                 if start.button_pressed() == 0:
                     control["state"] = switch_state(start, states.GAME_2)
-                    control["game_mode"] = "normal"
+                    control["game_mode"] = "easy"
                 elif start.button_pressed() == 1:
                     control["state"] = switch_state(start, states.GAME_1)
-                    control["game_mode"] = "easy"
+                    control["game_mode"] = "normal"
                 elif start.button_pressed() == 2:
                     control["state"] = switch_state(start, states.GAME_3)
                     control["game_mode"] = "hard"

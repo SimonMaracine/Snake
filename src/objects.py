@@ -5,6 +5,7 @@ import pygame
 from res import eat_sound, hit_sound
 from common import WIDTH, HEIGHT, GRID
 
+
 class Snake(object):
     def __init__(self, x=WIDTH/2, y=HEIGHT/2):
         self.x = x

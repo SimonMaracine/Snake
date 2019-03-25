@@ -6,6 +6,7 @@ from common import WIDTH, HEIGHT, clock, no_joystick, joy, switch_state, read_al
 from engine.room import Room
 from engine.room_item import Button
 
+
 def game_over_state(window, control):
     flag = True
     joy_ctrl = read_all_controls()
