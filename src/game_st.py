@@ -12,9 +12,11 @@ from engine.room import Room
 
 def save_best_score(score):
     with open(os.path.join("data", "data.dat"), "rb") as data_file:
-        prev_best_score = int(pickle.load(data_file)[0])
+        all_data = list(pickle.load(data_file))
+        prev_best_score = int(all_data[0])
+        game_progress = list(all_data[2])
         if score > prev_best_score:
-            data_to_write = [score, datetime.datetime.now()]
+            data_to_write = [score, datetime.datetime.now(), game_progress]
             with open(os.path.join("data", "data.dat"), "wb") as data_file2:
                 pickle.dump(data_to_write, data_file2)
 

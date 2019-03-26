@@ -21,7 +21,7 @@ def switch_state(from_state, to_state, window=None, control=None) -> int:
 
 def clear_data():
     with open(os.path.join("data", "data.dat"), "wb") as data_file:
-        data_to_write = [0, "n/a"]
+        data_to_write = [0, "n/a", [True, False, False]]
         pickle.dump(data_to_write, data_file)
 
 
