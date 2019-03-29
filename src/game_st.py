@@ -21,6 +21,20 @@ def save_best_score(score):
                 pickle.dump(data_to_write, data_file2)
 
 
+def unlock_game(game_difficulty: int):
+    with open(os.path.join("data", "data.dat"), "rb") as data_file:
+        all_data = list(pickle.load(data_file))
+
+        prev_best_score = int(all_data[0])
+        prev_date = all_data[1]
+        prev_progress = list(all_data[2])
+        prev_progress[game_difficulty] = True
+        now_progress = prev_progress
+        with open(os.path.join("data", "data.dat"), "wb") as data_file2:
+            data_to_write = [prev_best_score, prev_date, now_progress]
+            pickle.dump(data_to_write, data_file2)
+
+
 def game_state1(window, control):  # NORMAL
     joy_ctrl = read_all_controls()
     can_move = True
@@ -96,6 +110,8 @@ def game_state1(window, control):  # NORMAL
         clock.tick(60)
 
     save_best_score(score)
+    if score >= 40:
+        unlock_game(2)
 
 
 def game_state2(window, control):  # EASY
@@ -173,6 +189,10 @@ def game_state2(window, control):  # EASY
         clock.tick(60)
 
     save_best_score(score)
+    if score >= 16:
+        unlock_game(1)
+    elif score >= 40:
+        unlock_game(2)
 
 
 def game_state3(window, control):  # HARD

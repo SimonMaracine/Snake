@@ -15,20 +15,6 @@ def game_unlocked(game_difficulty: int) -> bool:
         return game_progress[game_difficulty]
 
 
-def unlock_game(game_difficulty: int):
-    with open(os.path.join("data", "data.dat"), "rb") as data_file:
-        all_data = list(pickle.load(data_file))
-
-        prev_best_score = int(all_data[0])
-        prev_date = all_data[1]
-        prev_progress = list(all_data[2])
-        prev_progress[game_difficulty] = True
-        now_progress = prev_progress
-        with open(os.path.join("data", "data.dat"), "wb") as data_file2:
-            data_to_write = [prev_best_score, prev_date, now_progress]
-            pickle.dump(data_to_write, data_file2)
-
-
 def game_start_state(window, control):
     flag = True
     flag2 = False
@@ -37,13 +23,18 @@ def game_start_state(window, control):
     title_text = pygame.font.SysFont("calibri", 65, True).render("Choose a difficulty:", True, (240, 240, 240))
     colors = ((0, 0, 0), (255, 255, 255))
     rect_color = ((16, 16, 255), (14, 14, 160))
-    button1 = Button(WIDTH // 2 - 300, HEIGHT // 2 + 60, rect_color[0] if game_unlocked(0) else rect_color[1], button_font, "EASY", colors, True).set_offset_pos()
+    button1 = Button(WIDTH // 2 - 300, HEIGHT // 2 + 60, rect_color[0], button_font, "EASY", colors, True).set_offset_pos()
     button2 = Button(WIDTH // 2 - 110, HEIGHT // 2 + 60, rect_color[0] if game_unlocked(1) else rect_color[1], button_font, "NORMAL", colors, True).set_offset_pos().set_selected()
     button3 = Button(WIDTH // 2 + 90, HEIGHT // 2 + 60, rect_color[0] if game_unlocked(2) else rect_color[1], button_font, "HARD", colors, True).set_offset_pos()
     button4 = Button(WIDTH // 2 + 280, HEIGHT // 2 + 60, rect_color[0], button_font, "<None>", colors, True).set_offset_pos()
     button5 = Button(WIDTH // 2, HEIGHT // 2 + 180, rect_color[0], button_font, "BACK", colors, True).set_offset_pos()
     buttons = (button1, button2, button3, button4, button5)
     start = MainMenu(title_text, buttons, button_sound, (16, 16, 216))
+
+    if game_unlocked(1):
+        print(1)
+    else:
+        print(0)
 
     while start.run:
         for event in pygame.event.get():
