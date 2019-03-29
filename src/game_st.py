@@ -189,10 +189,11 @@ def game_state2(window, control):  # EASY
         clock.tick(60)
 
     save_best_score(score)
-    if score >= 16:
+    if score >= 40:
         unlock_game(1)
-    elif score >= 40:
         unlock_game(2)
+    elif score >= 16:
+        unlock_game(1)
 
 
 def game_state3(window, control):  # HARD
