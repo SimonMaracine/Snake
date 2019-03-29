@@ -1,2 +1,4 @@
 # Ignoring that workspace xml
 *.xml
+*.pyc
+*.exe
