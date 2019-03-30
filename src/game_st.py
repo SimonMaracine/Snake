@@ -43,7 +43,7 @@ def game_state1(window, control):  # NORMAL
     snake = objects.Snake()
     food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 37)
+    pygame.time.set_timer(MOVE, 42)
     game = Room()
 
     while game.run:
@@ -101,7 +101,7 @@ def game_state1(window, control):  # NORMAL
         if snake.eat(food):
             snake.grow()
             score += 1
-            food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
+            food = food.respawn(39, 29, snake)
         snake.show(window)
         food.show(window)
         window.blit(score_font.render("SCORE: " + str(score), True, (255, 255, 255)), (WIDTH // 2 - 72, 38))
@@ -180,7 +180,7 @@ def game_state2(window, control):  # EASY
         if snake.eat(food):
             snake.grow()
             score += 1
-            food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
+            food = food.respawn(39, 29, snake)
         snake.show(window)
         food.show(window)
         window.blit(score_font.render("SCORE: " + str(score), True, (255, 255, 255)), (WIDTH // 2 - 72, 38))
@@ -204,7 +204,7 @@ def game_state3(window, control):  # HARD
     snake = objects.Snake()
     food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
     MOVE = pygame.USEREVENT + 1
-    pygame.time.set_timer(MOVE, 35)
+    pygame.time.set_timer(MOVE, 40)
     game = Room()
 
     while game.run:
@@ -263,7 +263,7 @@ def game_state3(window, control):  # HARD
         if snake.eat(food):
             snake.grow()
             score += 1
-            food = objects.Food(randint(0, 39) * GRID, randint(0, 29) * GRID)
+            food = food.respawn(39, 29, snake)
         snake.show(window)
         food.show(window)
         window.blit(score_font.render("SCORE: " + str(score), True, (255, 255, 255)), (WIDTH // 2 - 72, 38))

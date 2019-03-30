@@ -1,3 +1,4 @@
+from random import randint
 from copy import deepcopy
 from vectors import Vector
 import pygame
@@ -102,6 +103,18 @@ class Food(object):
     def show(self, window):
         pygame.draw.rect(window, self.color, (self.x + 3, self.y + 3, self.width, self.width))
 
+    @staticmethod
+    def spawn(rows, cols):
+        return randint(0, rows) * GRID, randint(0, cols) * GRID
+
+    @staticmethod
+    def respawn(rows, cols, snake: Snake):
+        x, y = __class__.spawn(rows, cols)
+        for part in snake.body:
+            if part.x == x and part.y == y:
+                print("spawned inside body")
+                return __class__.respawn(rows, cols, snake)
+        return Food(x, y)
 
 class XFood(Food):
     pass

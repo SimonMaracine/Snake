@@ -31,11 +31,6 @@ def game_start_state(window, control):
     buttons = (button1, button2, button3, button4, button5)
     start = MainMenu(title_text, buttons, button_sound, (16, 16, 216))
 
-    if game_unlocked(1):
-        print(1)
-    else:
-        print(0)
-
     while start.run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
